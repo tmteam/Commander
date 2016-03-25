@@ -13,10 +13,6 @@ namespace Commander
 
     public interface ICommand<TResult> : IFuncCommand, ICommand
     {
-        // Properties
         TResult TypedResult { get; }
     }
-
-
-
 }
