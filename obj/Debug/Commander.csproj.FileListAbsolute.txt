@@ -1,0 +1,10 @@
+C:\Code\Commander\Commander\bin\Debug\Commander.dll
+C:\Code\Commander\Commander\bin\Debug\Commander.pdb
+C:\Code\Commander\Commander\obj\Debug\Commander.csprojResolveAssemblyReference.cache
+C:\Code\Commander\Commander\obj\Debug\Commander.dll
+C:\Code\Commander\Commander\obj\Debug\Commander.pdb
+C:\Code\Commander\src\Commander\obj\Debug\Commander.csprojResolveAssemblyReference.cache
+C:\Code\Commander\src\Commander\obj\Debug\Commander.dll
+C:\Code\Commander\src\Commander\obj\Debug\Commander.pdb
+C:\Code\Commander\src\Commander\bin\Debug\Commander.dll
+C:\Code\Commander\src\Commander\bin\Debug\Commander.pdb
