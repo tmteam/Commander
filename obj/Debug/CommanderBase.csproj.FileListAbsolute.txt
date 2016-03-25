@@ -1,4 +1,0 @@
-C:\Users\Su\Documents\Visual Studio 2013\Projects\BWPlayGround\CommanderBase\bin\Debug\CommanderBase.dll
-C:\Users\Su\Documents\Visual Studio 2013\Projects\BWPlayGround\CommanderBase\bin\Debug\CommanderBase.pdb
-C:\Users\Su\Documents\Visual Studio 2013\Projects\BWPlayGround\CommanderBase\obj\Debug\CommanderBase.dll
-C:\Users\Su\Documents\Visual Studio 2013\Projects\BWPlayGround\CommanderBase\obj\Debug\CommanderBase.pdb

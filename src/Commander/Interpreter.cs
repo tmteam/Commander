@@ -19,7 +19,7 @@ namespace Commander
             this.CommandInformation = scanner;
             this.Log       = log?? new ConsoleLog();
             this.Scheduler = new Scheduler(executer: this.Execute, log: this.Log);
-            this.Factory   = new CommandFactory(scanner, this.Scheduler);
+            this.Factory   = new CommandFactory(scanner);
         }
 
         public void AddHelpCommand() {
