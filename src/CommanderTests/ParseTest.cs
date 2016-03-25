@@ -87,7 +87,7 @@ namespace Commander.Tests
             };
 
             foreach (var testCase in testCases)
-                Assert.AreEqual(testCase.Value, Tools.ParseDateTime(testCase.Key));
+                Assert.AreEqual(testCase.Value, new DateTimeValue(testCase.Key).ToDateTime());
         }
         public void TestTimeSpan()
         {
@@ -101,7 +101,7 @@ namespace Commander.Tests
                 {"123w", TimeSpan.FromDays(123*7)},
             };
             foreach (var testCase in testCases)
-                Assert.AreEqual(testCase.Value, Tools.ParseTimeSpan(testCase.Key));
+                Assert.AreEqual(testCase.Value, new DateTimeValue(testCase.Key).ToTimeSpan());
         }
     }
 

@@ -37,7 +37,7 @@ namespace Commander
             var plan = new TaskPlan {
                 CommandFactory    = commandFactory,
                 maxExecutionCount = properties.Count,
-                intervalInMsec    = properties.Every.HasValue?(int)properties.Every.Value.Milliseconds:int.MaxValue,
+                intervalInMsec    = properties.Every.HasValue?(int)properties.Every.Value.TotalMilliseconds:int.MaxValue,
                 plannedTime       = firstTime
             };
 

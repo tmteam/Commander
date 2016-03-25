@@ -13,19 +13,19 @@ namespace Commander
         public static object Convert(string value, Type type)
         {
             //check for nullable types: (https://msdn.microsoft.com/en-us/library/ms366789.aspx)
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) {
                 if (string.IsNullOrWhiteSpace(value))
                     return null;
                 else
                      type = type.GenericTypeArguments.First();
             }
+
             if (type == typeof(string))
                 return value;
             if (type == typeof(DateTime))
-                return ParseDateTime(value);
+                return new DateTimeValue(value).ToDateTime();
             if (type == typeof(TimeSpan))
-                return ParseTimeSpan(value);
+                return new DateTimeValue(value).ToTimeSpan();
             else
                 return System.Convert.ChangeType(value, type);
         }
@@ -94,92 +94,13 @@ namespace Commander
             return name;
         }
 
-        public static DateTime ParseDateTime(string inputString)
+        static DateTimeValue ParseDateTimeValue(string inputString)
         {
-            DateTime time;
+            DateTimeValue ans = new DateTimeValue();
             inputString = inputString.Trim();
-            int? year = null;
-            int? month = null;
-            int? day = null;
-            int? hour = null;
-            int? min = null;
-            int? sec = null;
 
-            if (DateTime.TryParse(inputString, out time))
-                return time;
             
-            var strArray = inputString.Split(new char[] { ' ' });
-            if ((strArray.Length != 1) && (strArray.Length != 2))
-                throw new InvalidCastException();
-
-            string dateStr = null;
-            string timeStr = null;
-            
-            if (strArray[0].Contains<char>('.'))
-                dateStr = strArray[0];
-            else if (strArray[0].Contains<char>(':'))
-                timeStr = strArray[0];
-            if (strArray.Length > 1) {
-                if (timeStr != null)
-                    throw new InvalidCastException();
-                if (!strArray[1].Contains<char>(':'))
-                    throw new InvalidCastException();
-                timeStr = strArray[1];
-            }
-            if (!string.IsNullOrWhiteSpace(dateStr))
-            {
-                var strArray2 = dateStr.Split(new char[] { '.' });
-                if ((strArray2.Length != 2) && (strArray2.Length != 3))
-                    throw new InvalidCastException();
-                day   = new int?(int.Parse(strArray2[0]));
-                month = new int?(int.Parse(strArray2[1]));
-                if (strArray2.Length == 3)
-                    year = new int?(int.Parse(strArray2[2]));
-            }
-            if (!string.IsNullOrWhiteSpace(timeStr))
-            {
-                string[] strArray3 = timeStr.Split(new char[] { ':' });
-                if ((strArray3.Length != 2) && (strArray3.Length != 3))
-                    throw new InvalidCastException();
-                hour = new int?(int.Parse(strArray3[0]));
-                min = new int?(int.Parse(strArray3[1]));
-                if (strArray3.Length == 3)
-                    sec = new int?(int.Parse(strArray3[2]));
-            }
-            return new DateTime(
-                year.HasValue ? year.GetValueOrDefault() : DateTime.Now.Year,
-                month.HasValue ? month.GetValueOrDefault() : DateTime.Now.Month,
-                day.HasValue ? day.GetValueOrDefault() : DateTime.Now.Day,
-                hour.HasValue ? hour.GetValueOrDefault() : 0,
-                min.HasValue ? min.GetValueOrDefault() : 0,
-                sec.HasValue ? sec.GetValueOrDefault() : 0);
-        }
-
-        public static TimeSpan ParseTimeSpan(string inputString) {
-            char ch = inputString.ToLower().Last<char>();
-            Func<double, TimeSpan> func = null;
-            switch (ch)
-            {
-                case 'm':
-                    func = new Func<double, TimeSpan>(TimeSpan.FromMinutes);
-                    break;
-                case 's':
-                    func = new Func<double, TimeSpan>(TimeSpan.FromSeconds);
-                    break;
-                case 'w':
-                    func = d => TimeSpan.FromDays(d * 7.0);
-                    break;
-                case 'd':
-                    func = new Func<double, TimeSpan>(TimeSpan.FromDays);
-                    break;
-                case 'h':
-                    func = new Func<double, TimeSpan>(TimeSpan.FromHours);
-                    break;
-                default:
-                    return TimeSpan.FromMilliseconds(double.Parse(inputString));
-            }
-            var arg = double.Parse(inputString.Remove(inputString.Length - 1));
-            return func(arg);
+            return ans;
         }
 
         public static string[] ParseToConsoleArgs(string inputString)
@@ -244,5 +165,156 @@ namespace Commander
         }
     }
 
+    public class DateTimeValue
+    {
+        public DateTimeValue() { }
+        public DateTimeValue(DateTime time) {
+            Parse(time);
+        }
+        public DateTimeValue(TimeSpan timeSpan) {
+            Parse(timeSpan);
+        }
+        public DateTimeValue(string str)
+        {
+            DateTime time;
+            str = str.Trim();
+            if (TryParseDateTime(str))
+                return;
+            else if (TryParseTimeSpan(str))
+                return;
+            else if (DateTime.TryParse(str, out time)) {
+                Parse(time);
+                return;
+            }
+            else
+                throw new InvalidCastException();
+        }
+        bool TryParseTimeSpan(string str)
+        {
+            char ch = str.ToLower().Last<char>();
+            Func<double, TimeSpan> func = null;
+            TimeSpan? res = null;
+            switch (ch)
+            {
+                case 'm':
+                    func = new Func<double, TimeSpan>(TimeSpan.FromMinutes);
+                    break;
+                case 's':
+                    func = new Func<double, TimeSpan>(TimeSpan.FromSeconds);
+                    break;
+                case 'w':
+                    func = d => TimeSpan.FromDays(d * 7.0);
+                    break;
+                case 'd':
+                    func = new Func<double, TimeSpan>(TimeSpan.FromDays);
+                    break;
+                case 'h':
+                    func = new Func<double, TimeSpan>(TimeSpan.FromHours);
+                    break;
+                default:
+                    {
+                        double arg;
+                        if (!double.TryParse(str, out arg))
+                            return false;
+                        else
+                            res = TimeSpan.FromMilliseconds(double.Parse(str));
+                        break;
+                    }
+            }
+            if (!res.HasValue) {
+                double arg2;
+                if (!double.TryParse(str.Remove(str.Length - 1), out arg2))
+                    return false;
+                res = func(arg2);
+            }
+            Parse(res.Value);
+            return true;
+        }
+        void Parse(TimeSpan timeSpan)
+        {
+            Year = null;
+            Month = null;
+            Day = timeSpan.Days;
+            Hour = timeSpan.Hours;
+            Minute = timeSpan.Minutes;
+            Second = timeSpan.Seconds;
+        }
+        void Parse(DateTime dateTime){
+            Year    = dateTime.Year;
+            Month   = dateTime.Month;
+            Day     = dateTime.Day;
+            Hour    = dateTime.Hour;
+            Minute  = dateTime.Minute;
+            Second  = dateTime.Second;
+        }
+       
+        bool TryParseDateTime(string str)
+        {
+            var strArray = str.Split(new char[] { ' ' });
+            if ((strArray.Length != 1) && (strArray.Length != 2))
+                throw new InvalidCastException();
+
+            string dateStr = null;
+            string timeStr = null;
+
+            if (strArray[0].Contains<char>('.'))
+                dateStr = strArray[0];
+            else if (strArray[0].Contains<char>(':'))
+                timeStr = strArray[0];
+            if (strArray.Length > 1)
+            {
+                if (timeStr != null)
+                    return false;
+                if (!strArray[1].Contains<char>(':'))
+                    return false;
+                timeStr = strArray[1];
+            }
+            if (!string.IsNullOrWhiteSpace(dateStr))
+            {
+                var strArray2 = dateStr.Split(new char[] { '.' });
+                if ((strArray2.Length != 2) && (strArray2.Length != 3))
+                    return false;
+                Day = new int?(int.Parse(strArray2[0]));
+                Month = new int?(int.Parse(strArray2[1]));
+                if (strArray2.Length == 3)
+                    Year = new int?(int.Parse(strArray2[2]));
+            }
+            if (!string.IsNullOrWhiteSpace(timeStr))
+            {
+                string[] strArray3 = timeStr.Split(new char[] { ':' });
+                if ((strArray3.Length != 2) && (strArray3.Length != 3))
+                    return false;
+                Hour = new int?(int.Parse(strArray3[0]));
+                Minute = new int?(int.Parse(strArray3[1]));
+                if (strArray3.Length == 3)
+                    Second = new int?(int.Parse(strArray3[2]));
+            }
+            return true;
+        }
+        public int? Year;
+        public int? Month;
+        public int? Day;
+        public int? Hour;
+        public int? Minute;
+        public int? Second;
+        public TimeSpan ToTimeSpan()
+        {
+            var inSeconds = (Second.GetValueOrDefault() 
+                + Minute.GetValueOrDefault() * 60 
+                + Hour.GetValueOrDefault() * 3600 
+                + Day.GetValueOrDefault() * 3600 * 24);
+            return TimeSpan.FromSeconds(inSeconds);
+        }
+        public DateTime ToDateTime()
+        {
+            return new DateTime(
+                Year.HasValue   ? Year.GetValueOrDefault() : DateTime.Now.Year,
+                Month.HasValue  ? Month.GetValueOrDefault() : DateTime.Now.Month,
+                Day.HasValue    ? Day.GetValueOrDefault() : DateTime.Now.Day,
+                Hour.HasValue   ? Hour.GetValueOrDefault() : 0,
+                Minute.HasValue ? Minute.GetValueOrDefault() : 0,
+                Second.HasValue ? Second.GetValueOrDefault() : 0);
+        }
+    }
 
 }
