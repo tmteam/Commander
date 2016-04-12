@@ -9,11 +9,45 @@ namespace Commander.Tests
     public class ParseTest
     {
         [TestMethod]
+        public void TestSmartSplit()
+        {
+             var cases = new[]{
+                
+                new SmartSplitCase{
+                    CommandString = " qwert ",
+                    Args = new[] {"qwert"}
+                },
+                new SmartSplitCase{
+                    CommandString = "qwe qwe",
+                    Args = new[] {"qwe", "qwe"}
+                },
+                new SmartSplitCase{
+                    CommandString = "primitive",
+                    Args = new []{"primitive"}    
+                },
+                new SmartSplitCase{
+
+                     CommandString = "romdomdomCmd  dom2 Dom \"Aleksandr \\\" \\\" pushkin\\\"\" \"lalala\" rom 14 ",
+                     Args = new[]{
+                         "romdomdomCmd",  "dom2", "Dom", "\"Aleksandr \" \" pushkin\"\"" ,"\"lalala\"","rom","14"
+                     }
+                },
+            };
+             foreach (var test in cases) {
+                 var splitted = Tools.SmartSplit(test.CommandString);
+                 if (splitted.Count != test.Args.Length)
+                     Assert.Fail("Parsed and expected lengths are not equal ("+ splitted.Count+" vs "+ test.Args.Length+")");
+                 for (int i = 0; i < splitted.Count; i++) {
+                     Assert.AreEqual(splitted[i], test.Args[i]);
+                 }
+             }
+        }
+        [TestMethod]
         public void TestInputArguments()
         {
             var testCases = new CommandParseTestCase[]{
                 new CommandParseTestCase{
-                    CommandString = "romdomdomCmd  -dom2 -Dom \"Александр\\\"\\\" Пушкин\\\"\" -rom 14 ",
+                    CommandString = "romdomdomCmd  dom2 Dom \"Александр\\\"\\\" Пушкин\\\"\" rom 14 ",
                     IsValid = true, 
                     CommandName = "romdomdomcmd",
                       Args = new Dictionary<string,string>{
@@ -23,7 +57,7 @@ namespace Commander.Tests
                       },
                 },
                 new CommandParseTestCase{
-                    CommandString = " romdomdomCmd -rom    -   dom - dom2 ",
+                    CommandString = " romdomdomCmd rom dom dom2 ",
                     IsValid = true, 
                     CommandName = "romdomdomcmd",
                     Args = new Dictionary<string,string>{
@@ -33,7 +67,7 @@ namespace Commander.Tests
                       },
                 },
                 new CommandParseTestCase{
-                    CommandString = " romdomdomCmd bubuh -rom  -dom - dom2 ",
+                    CommandString = " romdomdomCmd bubuh rom dom dom2 ",
                     IsValid = false, 
                     CommandName = "romdomdomcmd",
                 },
@@ -111,4 +145,10 @@ namespace Commander.Tests
         public string CommandName;
         public Dictionary<string, string> Args;
     };
+    class SmartSplitCase
+    {
+        public string CommandString;
+        public string[] Args;
+ 
+    }
 }

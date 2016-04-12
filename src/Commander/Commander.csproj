@@ -72,7 +72,7 @@
     <Compile Include="TaskPlan.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="TypeScanner.cs" />
-    <Compile Include="Exceptions\UnknownArgumentException.cs" />
+    <Compile Include="Exceptions\UnknownArgumentsException.cs" />
     <Compile Include="Exceptions\UnknownCommandNameException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

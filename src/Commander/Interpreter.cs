@@ -34,50 +34,44 @@ namespace Commander
         }
 
         public void Execute(string[] args) {
+            
             Log.WriteMessage(">> " + string.Concat(args.Select(a => a + " ")));
-            Dictionary<string, string> parsedArgs;
-            string commandName;
-            if (!Tools.TryParse(args, out commandName, out parsedArgs))
-                Log.WriteError("Cannot parse the command");
-            else { 
-                ICommand cmd = null;
+            var argsList = args.ToList();
+            string commandName = Tools.ExtractCommandName(argsList);
+            
+            ICommand cmd = null;
+            try {
+                cmd = CreateAndConfigure(commandName, argsList);
+                AttachLogTo(cmd);
+            } catch (UnknownCommandNameException ex) {
+                Log.WriteError("Command " + ex.CommandName + " not found");
+            }
+            catch (UnknownArgumentsException ex) {
+                if(ex.ArgumentNames.Length>1)
+                    Log.WriteError("Unknown arguments: \"" + string.Concat(ex.ArgumentNames.Select(a => a + " "))+"\"");
+                else
+                    Log.WriteError("Unknown argument: \"" + ex.ArgumentNames.FirstOrDefault() + "\"");
 
-                try {
-                    cmd = CreateAndConfigure(commandName, parsedArgs);
-                    AttachLogTo(cmd);
-                } catch (UnknownCommandNameException ex) {
-                    Log.WriteError("Command " + ex.CommandName + " not found");
-                }
-                catch (UnknownArgumentException ex) {
-                    Log.WriteError("Argument " + ex.ArgumentName + " is unknown");
-                }
-                catch (MissedArgumentsException ex) {
-                    var str = new StringBuilder();
-                    if (ex.ArgumentsName.Length> 1) {
-                        str.Append("Neccessary arguments were missed: ");
-                        foreach (var arg in ex.ArgumentsName) {
-                            str.Append("-" + arg);
-                            str.Append(" ");
-                        }
-                    }
-                    else
-                        str.Append("Neccessary argument -" + ex.ArgumentsName[0] + " was missed");
-                    Log.WriteError(str.ToString());
-                }
-                catch (InvalidArgumentException ex) {
-                    Log.WriteError(ex.Message);
-                }
-                catch (ArgumentException ex){
-                    Log.WriteError("IncorrectCommand ");
-                }
-                catch (Exception ex) {
-                    Log.WriteError("Exception: \r\n" + ex.ToString());
-                }
+            }
+            catch (MissedArgumentsException ex) {
+                if (ex.ArgumentNames.Length> 1) 
+                    Log.WriteError("Neccessary arguments were missed: \"" + string.Concat(ex.ArgumentNames.Select(a=>a + " "))+"\"");
+                else
+                    Log.WriteError("Neccessary argument \"" + ex.ArgumentNames.FirstOrDefault() + "\" has missed");
+            }
+            catch (InvalidArgumentException ex) {
+                Log.WriteError(ex.Message);
+            }
+            catch (ArgumentException ex){
+                Log.WriteError("IncorrectCommand ");
+            }
+            catch (Exception ex) {
+                Log.WriteError("Exception: \r\n" + ex.ToString());
+            }
                 
-                if (cmd != null) {
-                    Execute(cmd);
-                }
-             }
+            if (cmd != null) {
+                Execute(cmd);
+            }
         }
         public void Execute(ICommand cmd, TimeSpan interval, DateTime? launchTime = null, int? launchCount = null) {
             AttachLogTo(cmd);
@@ -109,24 +103,14 @@ namespace Commander
             }
         }
 
-        ICommand CreateAndConfigure(string commandName, Dictionary<string, string> args)
-        {
+        ICommand CreateAndConfigure(string commandName, List<string> argsList) {
             var argumentsDescription
                  = Tools.GetArgumentsDescription(typeof(CommandRunProperties));
             
-            var intervalArguments = new Dictionary<string, string>();
-            foreach (var description in argumentsDescription) {
-                var key = description.Description.ShortAlias.ToLower();
-                if (args.ContainsKey(key)) {
-                    intervalArguments.Add(key, args[key]);
-                    args.Remove(key);
-                }
-            }
-
             var intervalSettings = new CommandRunProperties();
-            Tools.SetValuesToObject(intervalArguments, argumentsDescription, intervalSettings);
+            Tools.ExtractAnsSetToProperties(argsList, argumentsDescription, intervalSettings);
 
-            var command = Factory.CreateAndConfigure(commandName, args);
+            var command = Factory.CreateAndConfigure(commandName, argsList);
 
             if (!  intervalSettings.At.HasValue 
                 && intervalSettings.Count.HasValue 
@@ -150,9 +134,7 @@ namespace Commander
                 }
                 else
                     throw new InvalidOperationException();
-            }
-            else
-            {
+            } else {
                 return command;
             }
         }

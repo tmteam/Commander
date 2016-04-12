@@ -10,6 +10,13 @@ namespace Commander
 {
     public static class Tools
     {
+        public static Type GetNonNullType(Type type)
+        {
+            if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                     return type.GenericTypeArguments.First();
+                else
+                return type;
+        }
         public static object Convert(string value, Type type)
         {
             //check for nullable types: (https://msdn.microsoft.com/en-us/library/ms366789.aspx)
@@ -19,7 +26,14 @@ namespace Commander
                 else
                      type = type.GenericTypeArguments.First();
             }
-
+            if (type == typeof(bool))
+            {
+                if (value == "1" || value.ToLower() == "true" || value == "yes")
+                    return true;
+                if (value == "0" || value.ToLower() == "false" || value == "no")
+                    return false;
+                throw new InvalidCastException("bool value should be equal one of these strings: 1, 0, true, yes, false, no");
+            }
             if (type == typeof(string))
                 return value;
             if (type == typeof(DateTime))
@@ -93,23 +107,95 @@ namespace Commander
                 name = name.Remove(name.Length - 7);
             return name;
         }
-
         static DateTimeValue ParseDateTimeValue(string inputString)
         {
             DateTimeValue ans = new DateTimeValue();
             inputString = inputString.Trim();
-
             
             return ans;
         }
-
+        public static List<string> SmartSplit(string inputString)
+        {
+            //("([^\\"]*(\\")*)*"|-(\s*)\S|\S)+
+            var pattern = "(\"([^\\\\\"]*(\\\\\")*)*\"|-(\\s*)\\S|\\S)+";
+            var regex = new Regex(pattern);
+            return regex.Matches(inputString)
+                .Cast<Match>()
+                .Select(c=>c.Value.Replace("\\",""))//it's kind of a dirty hack. The quest: "put it inside the regexp".
+                .ToList();
+        }
         public static string[] ParseToConsoleArgs(string inputString)
         {
             string pattern = "(\"([^\\\"]*(\\\")*)*\"|-(\\s*)\\S|\\S)+";
             Regex regex = new Regex(pattern);
             return (from c in regex.Matches(inputString).Cast<Match>() select c.Value).ToArray<string>();
         }
-
+        public static string ExtractCommandName(List<string> args)
+        {
+            if (args.Count == 0)
+                throw new ArgumentException();
+            var ans = args[0];
+            args.RemoveAt(0);
+            return ans;
+        }
+        public static void ExtractAnsSetToProperties(List<string> args, IEnumerable<ArgumentDescription> properties, object target){
+            List<string> notFoundedProperties = new List<string>();
+            foreach (var description in properties)
+            {
+                if (!SearchExactAndSetProperty(args, description, properties, target))
+                    notFoundedProperties.Add(description.Description.ShortAlias);
+            }
+            if (notFoundedProperties.Count != 0)
+                throw new MissedArgumentsException(notFoundedProperties.ToArray());
+            if (args.Count > 0)
+                throw new UnknownArgumentsException(args.ToString());
+        }
+        /// <summary>
+        /// Searching for the property value in the args list
+        /// </summary>
+        /// <returns>true, if value have founded or it is optional, false otherwise</returns>
+        public static bool SearchExactAndSetProperty(List<string> args, ArgumentDescription property, IEnumerable<ArgumentDescription> otherProperties, object target)
+        {
+            var propertyName = property.Description.ShortAlias.ToLower();
+            for (int i = 0; i < args.Count; i++)
+            {
+                if (args[i].ToLower() == propertyName)
+                {
+                    //match!
+                    var type = GetNonNullType(property.Property.GetType());
+                    var hasMore = (i < args.Count - 1);
+                    if (type == typeof(bool))//It can be flag!
+                    {
+                        if (!hasMore) {
+                            property.Property.SetValue(target, true);
+                            args.RemoveAt(i);
+                            return true;
+                        } else if (otherProperties.Any(p => p.Description.ShortAlias.ToLower() == args[i + 1])) {
+                            property.Property.SetValue(target, true); //it means flag value
+                            args.RemoveAt(i);
+                            return true;
+                        } else {
+                            bool value = (bool)Convert(args[i + 1], type);
+                            property.Property.SetValue(target, value);
+                            args.RemoveAt(i); //extract the name and the value from the list
+                            args.RemoveAt(i + 1);
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        if (!hasMore)
+                            throw new InvalidArgumentException(type, "", property.Description.ShortAlias);
+                        var nonBoolValue = Convert(args[i + 1], type);
+                        property.Property.SetValue(target, nonBoolValue);
+                        args.RemoveAt(i); //extract the name and the value from the list
+                        args.RemoveAt(i + 1);
+                        return true;
+                    }
+                }
+            }
+            return property.Description.Optional;
+        }
         public static void SetValuesToObject(Dictionary<string, string> args, IEnumerable<ArgumentDescription> properties, object target)
         {
             List<string> list = new List<string>();
@@ -128,7 +214,7 @@ namespace Commander
                 var description2 = properties
                     .FirstOrDefault<ArgumentDescription>(a => (a.Description.ShortAlias.ToLower() == name) || (a.Property.Name.ToLower() == name));
                 if (description2 == null)
-                    throw new UnknownArgumentException(pair.Key);
+                    throw new UnknownArgumentsException(pair.Key);
                 try {
                     var obj2 = Convert(pair.Value, description2.Property.PropertyType);
                     description2.Property.SetValue(target, obj2);
