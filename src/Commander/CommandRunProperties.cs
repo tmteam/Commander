@@ -9,7 +9,7 @@ namespace Commander
     public class CommandRunProperties
     {
         [CommandArgument(ShortAlias= "at", Description= "", Optional = true)]
-        public TimeSpan? At { get; set; }
+        public DateTime? At { get; set; }
 
         [CommandArgument(ShortAlias= "every", Description= "", Optional = true)]
         public TimeSpan? Every { get; set; }

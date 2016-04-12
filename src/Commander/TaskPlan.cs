@@ -9,7 +9,7 @@ namespace Commander
     public class TaskPlan
     {
         public ICommandAbstractFactory CommandFactory;
-        public int intervalInMsec;
+        public TimeSpan? interval;
         public DateTime plannedTime;
         public int executedCount = 0;
         public int? maxExecutionCount = null;

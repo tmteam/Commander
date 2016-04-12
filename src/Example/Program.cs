@@ -10,8 +10,7 @@ namespace Example
 {
     class Program
     {
-        static int Main(string[] args)
-        {
+        static void Main(string[] args) {
 
             var interpreter = new Interpreter(
                         scanner: new TypeScanner(), 
@@ -19,13 +18,23 @@ namespace Example
                                     new ConsoleLog(), 
                                     new FileLog(10000, "TheLog.txt")));
             
-            interpreter.Log.WriteMessage("Commander Example");
+            interpreter.Log.WriteMessage("Commander lauched");
             
             interpreter.CommandInformation.ScanAssembly(Assembly.GetEntryAssembly());
+
+            if (!Environment.UserInteractive)
+            {
+                interpreter.Log.WriteMessage("Executed as a service");
             
-            if (args.Length > 0)
+                interpreter.Execute("divide -a 10 -b 5 -at 02:00 -every 24h");
+                interpreter.Execute("writeHello");
+                
+                interpreter.WaitForFinshed();
+            } else if (args.Length > 0) { // when it's executed with parameters:
                 interpreter.Execute(args);
-            else {
+                return;
+            } else { // when it's executed as console application:
+
                 interpreter.AddExitCommand();
                 interpreter.AddHelpCommand();
                 interpreter.Execute("help");
@@ -37,11 +46,10 @@ namespace Example
                 }, TimeSpan.FromSeconds(10), null, 10);
                 */
                 interpreter.RunInputLoop();
+                interpreter.Log.WriteMessage("Goodbye. Press any key to continue...");
+                Console.ReadLine();
+                return;
             }
-            
-            interpreter.Log.WriteMessage("Goodbye");
-            Console.ReadLine();
-            return 0;
         }
     }
 }

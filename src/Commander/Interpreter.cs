@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Commander
@@ -78,7 +79,7 @@ namespace Commander
                 }
              }
         }
-        public void Execute(ICommand cmd, TimeSpan interval, TimeSpan? launchTime = null, int? launchCount = null) {
+        public void Execute(ICommand cmd, TimeSpan interval, DateTime? launchTime = null, int? launchCount = null) {
             AttachLogTo(cmd);
             Scheduler.AddTask(
                 commandFactory: new SingletoneCommandAbstractFactory(cmd),
@@ -127,7 +128,9 @@ namespace Commander
 
             var command = Factory.CreateAndConfigure(commandName, args);
 
-            if (intervalSettings.Count.HasValue && !intervalSettings.Every.HasValue) {
+            if (!  intervalSettings.At.HasValue 
+                && intervalSettings.Count.HasValue 
+                && !intervalSettings.Every.HasValue) {
                 return new RunInCycleWrapper(command, intervalSettings.Count.Value, Execute);
             }
             else if ((this.Scheduler != null) && (!intervalSettings.IsEmpty)) {
@@ -152,6 +155,10 @@ namespace Commander
             {
                 return command;
             }
+        }
+        ManualResetEvent mres = new ManualResetEvent(false);
+        public void WaitForFinshed() {
+            mres.WaitOne();
         }
         void AttachLogTo(ICommand cmd) {
             var loggable = cmd as ILoggable;

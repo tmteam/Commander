@@ -269,6 +269,8 @@ namespace Commander
                     return false;
                 timeStr = strArray[1];
             }
+            if (string.IsNullOrWhiteSpace(dateStr) && string.IsNullOrWhiteSpace(timeStr))
+                return false;
             if (!string.IsNullOrWhiteSpace(dateStr))
             {
                 var strArray2 = dateStr.Split(new char[] { '.' });

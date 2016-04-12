@@ -14,7 +14,6 @@ namespace Example
         public double Dividend { get; set; }
         [CommandArgument("b", "Double, who divide divider (a)")]
         public double Divider { get; set; }
-        
 
         protected override double RunAndReturn()
         {

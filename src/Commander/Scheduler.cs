@@ -30,15 +30,15 @@ namespace Commander
 
             var firstTime = DateTime.Now;
             if (properties.At.HasValue){
-                firstTime = DateTime.Now.Date.Add(properties.At.Value);
+                firstTime = properties.At.Value;
                 if(firstTime<DateTime.Now)
                     firstTime = firstTime.AddDays(1);
             }
             var plan = new TaskPlan {
                 CommandFactory    = commandFactory,
                 maxExecutionCount = properties.Count,
-                intervalInMsec    = properties.Every.HasValue?(int)properties.Every.Value.TotalMilliseconds:int.MaxValue,
-                plannedTime       = firstTime
+                interval           = properties.Every,
+                plannedTime        = firstTime
             };
 
             lock (locker) {
@@ -73,11 +73,11 @@ namespace Commander
                 log.WriteMessage("Regular task \""
                     + Tools.NormilizeCommandTypeName(exemplar.GetType().Name)
                     + "\". Executed: "+ (plan.executedCount+1) 
-                    + (plan.maxExecutionCount.HasValue?(" of "+ plan.maxExecutionCount.Value):"")
-                    + ". Interval: "+ (plan.intervalInMsec)
-                    + " msec");
+                    + (plan.maxExecutionCount.HasValue?(" of "+ plan.maxExecutionCount.Value):"") + ". "
+                    + (plan.interval.HasValue? ("Interval: "+ (plan.interval.Value)):""));
                 
-                plan.plannedTime += TimeSpan.FromMilliseconds((double) plan.intervalInMsec);
+                if(plan.interval.HasValue)
+                    plan.plannedTime += plan.interval.Value;
                
                 this.executer(exemplar);
                 plan.executedCount++;
