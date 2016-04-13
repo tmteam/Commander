@@ -8,6 +8,85 @@ namespace Commander.Tests
     [TestClass]
     public class ParseTest
     {
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestNullableFailConvert(){
+            ParseTools.Convert("123", typeof(int?), "testArg");
+        }
+        
+        [TestMethod]
+        public void TestFailConvert()
+        {
+            var testCases = new Dictionary<string, Type>()
+            {
+                 {"some string", typeof(bool)},
+                 {"123a",       typeof(int)},
+                 {"\"100",      typeof(TimeSpan)},
+                 {"23:35.123",  typeof(TimeSpan)},
+                 {"hurray!",    typeof(DateTime)},
+                 {"",    typeof(int)},
+
+            };
+            foreach(var test in testCases){
+                try{
+                    ParseTools.Convert(test.Key, test.Value, "testArg");
+                }
+                catch(InvalidArgumentException ex){
+                    continue; //This's ok!
+                }
+                catch (Exception ex)
+                {
+                    //And this is not...
+                    Assert.Fail("Exception with incorrect type "+ ex.GetType().Name+" raised for " + test.Key + " to " + test.Value.Name + " convertion");
+                }
+                //And this...
+                Assert.Fail("InvalidArgumentException did not raise for " + test.Key + " to " + test.Value.Name + " convertion");
+            }
+        }
+        [TestMethod] 
+        public void TestSuccesfullConvert(){
+            var testCases = new Dictionary<string, object>()
+            {
+                 {"some string", "some string"},
+                 {"\"quote\"", "quote"},
+                 {"123",    123},
+                 {"100",    TimeSpan.FromMilliseconds(100)},
+                 {"23:35",  TimeSpan.FromMinutes(23*60 + 35)},
+                 {"23:40",  DateTime.Now.Date+ TimeSpan.FromMinutes(23*60+ 40)},
+                 {"No",        false},
+                 {"yes",       true},
+                 {"TRUE",      true},
+                 {"false",     false},
+                 {"\"1\"",     true},
+                 {"0",         false},
+                 {"101",       (double)101},
+                 {"\"103\"",   (float)103},
+                 {"123,7",     (double)123.7},
+                 {"123.5",     (double)123.5},
+                 {"123.555",   123.555M},
+                 {"124,555",   124.555M},
+                 {"\"124.5\"", (float)124.5},
+                 {"125,5",     (float)125.5},
+                 
+            };
+            foreach(var test in testCases){
+                Assert.AreEqual(test.Value, ParseTools.Convert(test.Key, test.Value.GetType(),"arg"));
+            }
+        }
+        [TestMethod]
+        public void TestNormalizeCommandTypeName()
+        {
+            Assert.AreEqual("cmd", ParseTools.NormalizeCommandTypeName("cmd"));
+            Assert.AreEqual("SomeThing", ParseTools.NormalizeCommandTypeName("SomeThing"));
+            Assert.AreEqual("Divide", ParseTools.NormalizeCommandTypeName("DivideCommand"));
+        }
+        [TestMethod]
+        public void TestNormalizeCommandArgName()
+        {
+            Assert.AreEqual("arg1", ParseTools.NormalizeCommandArgName("ArG1"));
+            Assert.AreEqual("arg2", ParseTools.NormalizeCommandArgName("ArG2:"));
+            Assert.AreEqual("arg3", ParseTools.NormalizeCommandArgName("-ArG3"));
+        }
         [TestMethod] 
         public void TestExtractCommandNameWhenNoArgs(){
             var args = new List<string> { "DiviDe" };

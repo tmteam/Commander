@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,15 +14,16 @@ namespace Commander
             "1","true","yes","да","ja","oui"
         };
         public static readonly string[] falseStrings = new[]{
-            "1","false","no","нет","nein","non"
+            "0","false","no","нет","nein","non"
         };
+
         public static object Convert(string value, Type nonNullType, string alias)
         {
             if (ReflectionTools.IsNullable(nonNullType))
                 throw new ArgumentException();
 
             if (value.StartsWith("\"") && value.EndsWith("\""))
-                value = value.Remove(value.Length - 2).Substring(1);
+                value = value.Remove(value.Length - 1).Substring(1);
 
             if (nonNullType == typeof(bool))
             {
@@ -31,7 +33,9 @@ namespace Commander
                 if (falseStrings.Contains(value))
                     return false;
             }
-            else try
+            else
+            {
+                try
                 {
                     if (nonNullType == typeof(string))
                         return value;
@@ -39,17 +43,38 @@ namespace Commander
                         return new DateTimeValue(value).ToDateTime();
                     if (nonNullType == typeof(TimeSpan))
                         return new DateTimeValue(value).ToTimeSpan();
-                    else
-                        return System.Convert.ChangeType(value, nonNullType);
-                }
-                catch { }
+                    if (nonNullType == typeof(double)
+                        || nonNullType == typeof(float)
+                        || nonNullType == typeof(decimal))
+                    {
 
+                        var format = CultureInfo.CurrentCulture.NumberFormat;
+                        if (format.NumberDecimalSeparator == ".")
+                            value = value.Replace(',', '.');
+                        else
+                            value = value.Replace('.', ',');
+                    }
+                    return System.Convert.ChangeType(value, nonNullType);                    
+                }
+                catch {
+                    //Just let them fall...
+                }
+            }
             throw new InvalidArgumentException(nonNullType, value, alias);
         }
         public static string NormalizeCommandTypeName(string name)
         {
             if (name.EndsWith("Command"))
                 name = name.Remove(name.Length - 7);
+            return name;
+        }
+        public static string NormalizeCommandArgName(string name)
+        {
+            name = name.ToLower();
+            if (name.StartsWith("-"))
+                return name.Substring(1);
+            if (name.EndsWith(":"))
+                return name.Remove(name.Length - 1);
             return name;
         }
         public static List<string> SmartSplit(string inputString)
@@ -70,6 +95,5 @@ namespace Commander
             args.RemoveAt(0);
             return ans.ToLower();
         }
-
     }
 }

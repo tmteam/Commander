@@ -82,7 +82,7 @@ namespace Commander
         }
         public static void ExtractAnsSetToProperties(List<string> args, IEnumerable<ArgumentDescription> properties, object target)
         {
-            List<string> notFoundedProperties = new List<string>();
+            var notFoundedProperties = new List<string>();
             foreach (var description in properties)
             {
                 if (!SearchExactAndSetProperty(args, description, properties, target))
@@ -101,8 +101,7 @@ namespace Commander
             var propertyName = property.Description.ShortAlias.ToLower();
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].ToLower() == propertyName)
-                {
+                if (propertyName == ParseTools.NormalizeCommandArgName(args[i])) {
                     //match!
                     var type = ReflectionTools.GetNonNullType(property.Property.PropertyType);
                     var hasMore = (i < args.Count - 1);
