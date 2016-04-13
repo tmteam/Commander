@@ -6,12 +6,18 @@ using System.Threading.Tasks;
 
 namespace Commander
 {
-    public class MissedArgumentsException : Exception
+    public class UnknownArgumentsException : Exception
     {
+        // Fields
         public readonly string[] ArgumentNames;
-        public MissedArgumentsException(string[] argumentNames)
+
+        // Methods
+        public UnknownArgumentsException(params string[] argumentNames)
         {
             this.ArgumentNames = argumentNames;
         }
     }
+
+ 
+
 }

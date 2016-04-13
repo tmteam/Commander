@@ -26,7 +26,7 @@ namespace Commander
             StringBuilder msg = new StringBuilder("Threre are " + this.Commands.Count<CommandDescription>() + " commands: \r\n");
             foreach (CommandDescription description in this.Commands)
             {
-                msg.AppendLine("[" + Tools.NormilizeCommandTypeName(description.type.Name) + "] - " + description.attribute.Description);
+                msg.AppendLine("[" + ParseTools.NormalizeCommandTypeName(description.type.Name) + "] - " + description.attribute.Description);
                 ArgumentDescription[] descriptionArray = (from a in description.arguments
                                                           where !a.Description.Optional
                                                           select a).ToArray<ArgumentDescription>();

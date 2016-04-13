@@ -26,7 +26,7 @@ namespace Example
             {
                 interpreter.Log.WriteMessage("Executed as a service");
             
-                interpreter.Execute("divide -a 10 -b 5 -at 02:00 -every 24h");
+                interpreter.Execute("divide  a 10  b 5  at 02:00  every 24h");
                 interpreter.Execute("writeHello");
                 
                 interpreter.WaitForFinshed();

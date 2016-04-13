@@ -20,7 +20,7 @@ namespace Commander
 
         public override void Run() {
             for (int i = 0; i < count; i++) {
-                Log.WriteMessage("\"" + Tools.NormilizeCommandTypeName(command.GetType().Name) + "\"'s iteration " + i + " of " + count);
+                Log.WriteMessage("\"" + ParseTools.NormalizeCommandTypeName(command.GetType().Name) + "\"'s iteration " + i + " of " + count);
                 executor(command);
             }
             Log.WriteMessage("Cycle finished");

@@ -13,12 +13,14 @@ namespace Commander
             this.Scanner = scanner;
         }
 
-        public ICommand CreateAndConfigure(string commandName, Dictionary<string, string> args) {
+        public ICommand CreateAndConfigure(string commandName, List<string> args) {
             var cmdDescription = this.Scanner.GetOrNull(commandName);
             if (cmdDescription == null)
                 throw new UnknownCommandNameException(commandName);
             var command = cmdDescription.exemplarFactory.GetExemplar();
-            Tools.SetValuesToObject(args, cmdDescription.arguments, command);
+            ReflectionTools.ExtractAnsSetToProperties(args, cmdDescription.arguments, command);
+            if(args.Count!=0)
+                    throw new UnknownArgumentsException(args.ToArray());
             return command;
         }
     }
