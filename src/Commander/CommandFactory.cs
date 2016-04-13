@@ -18,7 +18,9 @@ namespace Commander
             if (cmdDescription == null)
                 throw new UnknownCommandNameException(commandName);
             var command = cmdDescription.exemplarFactory.GetExemplar();
-            Tools.ExtractAnsSetToProperties(args, cmdDescription.arguments, command);
+            ReflectionTools.ExtractAnsSetToProperties(args, cmdDescription.arguments, command);
+            if(args.Count!=0)
+                    throw new UnknownArgumentsException(args.ToArray());
             return command;
         }
     }

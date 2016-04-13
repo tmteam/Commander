@@ -29,15 +29,15 @@ namespace Commander
 
         public void Registrate(CommandDescription description)
         {
-            string key = Tools.NormilizeCommandTypeName(description.type.Name).ToLower();
+            string key = ParseTools.NormalizeCommandTypeName(description.type.Name).ToLower();
             this.commands.Add(key, description);
         }
 
         public void Registrate(ICommand exemplar)
         {
             CommandDescription description = new CommandDescription {
-                arguments = Tools.GetArgumentsDescription(exemplar.GetType()),
-                attribute = Tools.GetCommandAttributeOrThrow(exemplar.GetType()),
+                arguments = ReflectionTools.GetArgumentsDescription(exemplar.GetType()),
+                attribute = ReflectionTools.GetCommandAttributeOrThrow(exemplar.GetType()),
                 exemplarFactory = new SingletoneCommandAbstractFactory(exemplar),
                 type = exemplar.GetType()
             };
@@ -46,7 +46,7 @@ namespace Commander
 
         public void Registrate(Type type)
         {
-            CommandAttribute commandAttributeOrThrow = Tools.GetCommandAttributeOrThrow(type);
+            CommandAttribute commandAttributeOrThrow = ReflectionTools.GetCommandAttributeOrThrow(type);
             if (!typeof(ICommand).IsAssignableFrom(type))
             {
                 throw new ArgumentException("Does not implement ICommand");
@@ -63,7 +63,7 @@ namespace Commander
             var description = new CommandDescription {
                 type = type,
                 attribute = attribute,
-                arguments = Tools.GetArgumentsDescription(type),
+                arguments = ReflectionTools.GetArgumentsDescription(type),
                 exemplarFactory = new ReflectionCommandAbstractFactory(type)
             };
             this.Registrate(description);

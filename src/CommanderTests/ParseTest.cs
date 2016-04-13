@@ -8,6 +8,21 @@ namespace Commander.Tests
     [TestClass]
     public class ParseTest
     {
+        [TestMethod] 
+        public void TestExtractCommandNameWhenNoArgs(){
+            var args = new List<string> { "DiviDe" };
+            var cmdName = ParseTools.ExtractCommandName(args);
+            Assert.AreEqual("divide", cmdName);
+            Assert.AreEqual(0, args.Count);
+        }
+        [TestMethod]
+        public void TestExtractCommandNameWhenWithArgs()
+        {
+            var args = new List<string> { "DiviDe","a","4","b","2" };
+            var cmdName = ParseTools.ExtractCommandName(args);
+            Assert.AreEqual("divide", cmdName);
+            Assert.AreEqual(4, args.Count);
+        }
         [TestMethod]
         public void TestSmartSplit()
         {
@@ -34,77 +49,13 @@ namespace Commander.Tests
                 },
             };
              foreach (var test in cases) {
-                 var splitted = Tools.SmartSplit(test.CommandString);
+                 var splitted = ParseTools.SmartSplit(test.CommandString);
                  if (splitted.Count != test.Args.Length)
                      Assert.Fail("Parsed and expected lengths are not equal ("+ splitted.Count+" vs "+ test.Args.Length+")");
                  for (int i = 0; i < splitted.Count; i++) {
                      Assert.AreEqual(splitted[i], test.Args[i]);
                  }
              }
-        }
-        [TestMethod]
-        public void TestInputArguments()
-        {
-            var testCases = new CommandParseTestCase[]{
-                new CommandParseTestCase{
-                    CommandString = "romdomdomCmd  dom2 Dom \"Александр\\\"\\\" Пушкин\\\"\" rom 14 ",
-                    IsValid = true, 
-                    CommandName = "romdomdomcmd",
-                      Args = new Dictionary<string,string>{
-                           {"rom", "14"},
-                           {"dom", "Александр\"\" Пушкин\""},
-                           {"dom2", true.ToString()},
-                      },
-                },
-                new CommandParseTestCase{
-                    CommandString = " romdomdomCmd rom dom dom2 ",
-                    IsValid = true, 
-                    CommandName = "romdomdomcmd",
-                    Args = new Dictionary<string,string>{
-                           {"rom",  true.ToString()},
-                           {"dom",  true.ToString()},
-                           {"dom2", true.ToString()},
-                      },
-                },
-                new CommandParseTestCase{
-                    CommandString = " romdomdomCmd bubuh rom dom dom2 ",
-                    IsValid = false, 
-                    CommandName = "romdomdomcmd",
-                },
-                new CommandParseTestCase{
-                    CommandString = " ",
-                    IsValid = false, 
-                },
-                new CommandParseTestCase{
-                    CommandString = "  BurumBurum",
-                    IsValid = true, 
-                    CommandName = "burumburum",
-                    Args = new Dictionary<string,string>(),
-                },
-            };
-
-            foreach (var someCase in testCases) {
-                string cmdName;
-                Dictionary<string, string> args;
-                var consoleArgs = Tools.ParseToConsoleArgs(someCase.CommandString);
-                bool isValid = Tools.TryParse(consoleArgs, out cmdName, out args);
-                Assert.AreEqual(someCase.IsValid, isValid);
-                if (!isValid)
-                    continue;
-                Assert.AreEqual(cmdName, someCase.CommandName);
-                foreach (var expected in someCase.Args) {
-                    if (!args.ContainsKey(expected.Key))
-                        Assert.Fail("argument " + expected.Key + " not found");
-
-                    if(args[expected.Key]!= expected.Value)
-                        Assert.Fail("value of " + expected.Key + " is not parsed correctly");
-                }
-
-                foreach (var arg in args) {
-                    if (!someCase.Args.ContainsKey(arg.Key))
-                        Assert.Fail("unexpected " + arg.Key);
-                }
-            }   
         }
         [TestMethod]
         public void TestDateTime()
@@ -123,11 +74,13 @@ namespace Commander.Tests
             foreach (var testCase in testCases)
                 Assert.AreEqual(testCase.Value, new DateTimeValue(testCase.Key).ToDateTime());
         }
+        [TestMethod]
         public void TestTimeSpan()
         {
             var testCases = new Dictionary<string, TimeSpan>()
             {
                 {"123", TimeSpan.FromMilliseconds(123)},
+                {"2000", TimeSpan.FromSeconds(2)},
                 {"123s", TimeSpan.FromSeconds(123)},
                 {"123m", TimeSpan.FromMinutes(123)},
                 {"123h", TimeSpan.FromHours(123)},
@@ -139,12 +92,13 @@ namespace Commander.Tests
         }
     }
 
-    class CommandParseTestCase{
-        public bool IsValid;
-        public string CommandString;
-        public string CommandName;
-        public Dictionary<string, string> Args;
-    };
+    class SomeObjectWithProperties
+    {
+        [CommandArgument(ShortAlias= "argi")]
+        public int i { get; set; }
+        [CommandArgument(ShortAlias= "someflag")]
+        public bool flag { get; set; }
+    }
     class SmartSplitCase
     {
         public string CommandString;

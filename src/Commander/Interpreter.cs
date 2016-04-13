@@ -30,14 +30,16 @@ namespace Commander
             CommandInformation.Registrate(new ExitCommand(this));
         }
         public void Execute(string inputString){
-            Execute(Tools.ParseToConsoleArgs(inputString));
+            Execute(ParseTools.SmartSplit(inputString));
         }
 
         public void Execute(string[] args) {
-            
-            Log.WriteMessage(">> " + string.Concat(args.Select(a => a + " ")));
-            var argsList = args.ToList();
-            string commandName = Tools.ExtractCommandName(argsList);
+            Execute(args.ToList());
+        }
+        void Execute(List<string> argsList)
+        {
+            Log.WriteMessage(">> " + string.Concat(argsList.Select(a => a + " ")));
+            var commandName = ParseTools.ExtractCommandName(argsList);
             
             ICommand cmd = null;
             try {
@@ -48,14 +50,14 @@ namespace Commander
             }
             catch (UnknownArgumentsException ex) {
                 if(ex.ArgumentNames.Length>1)
-                    Log.WriteError("Unknown arguments: \"" + string.Concat(ex.ArgumentNames.Select(a => a + " "))+"\"");
+                    Log.WriteError("Unknown arguments: \" " + string.Concat(ex.ArgumentNames.Select(a => a + " "))+"\"");
                 else
                     Log.WriteError("Unknown argument: \"" + ex.ArgumentNames.FirstOrDefault() + "\"");
 
             }
             catch (MissedArgumentsException ex) {
                 if (ex.ArgumentNames.Length> 1) 
-                    Log.WriteError("Neccessary arguments were missed: \"" + string.Concat(ex.ArgumentNames.Select(a=>a + " "))+"\"");
+                    Log.WriteError("Neccessary arguments were missed: \" " + string.Concat(ex.ArgumentNames.Select(a=>a + " "))+"\"");
                 else
                     Log.WriteError("Neccessary argument \"" + ex.ArgumentNames.FirstOrDefault() + "\" has missed");
             }
@@ -89,7 +91,7 @@ namespace Commander
                 cmd.Run();
                 var func = cmd as IFuncCommand;
                 if (func != null)
-                    Console.WriteLine("Result: " + Tools.DescribeResults(func.UntypedResult, "\t"));
+                    Console.WriteLine("Result: " + ReflectionTools.Describe(func.UntypedResult, "\t"));
             } catch (Exception ex) {
                 Log.WriteError("Exception: \r\n" + ex.ToString());
             }
@@ -99,16 +101,17 @@ namespace Commander
             while (!ExitFlag) {
                 Console.Write("\r\n> ");
                 var command = Console.ReadLine();
-                Execute(command);
+                if(!string.IsNullOrWhiteSpace(command))
+                    Execute(command);
             }
         }
 
         ICommand CreateAndConfigure(string commandName, List<string> argsList) {
             var argumentsDescription
-                 = Tools.GetArgumentsDescription(typeof(CommandRunProperties));
+                 = ReflectionTools.GetArgumentsDescription(typeof(CommandRunProperties));
             
             var intervalSettings = new CommandRunProperties();
-            Tools.ExtractAnsSetToProperties(argsList, argumentsDescription, intervalSettings);
+            ReflectionTools.ExtractAnsSetToProperties(argsList, argumentsDescription, intervalSettings);
 
             var command = Factory.CreateAndConfigure(commandName, argsList);
 

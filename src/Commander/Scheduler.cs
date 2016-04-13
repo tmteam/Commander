@@ -71,7 +71,7 @@ namespace Commander
                 var exemplar = plan.CommandFactory.GetExemplar();
 
                 log.WriteMessage("Regular task \""
-                    + Tools.NormilizeCommandTypeName(exemplar.GetType().Name)
+                    + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name)
                     + "\". Executed: "+ (plan.executedCount+1) 
                     + (plan.maxExecutionCount.HasValue?(" of "+ plan.maxExecutionCount.Value):"") + ". "
                     + (plan.interval.HasValue? ("Interval: "+ (plan.interval.Value)):""));
@@ -85,7 +85,7 @@ namespace Commander
                 if (plan.maxExecutionCount.HasValue && plan.executedCount >= plan.maxExecutionCount) {
                     lock(locker)
                         plans.Remove(plan);
-                    log.WriteMessage("Regular task \""+ Tools.NormilizeCommandTypeName(exemplar.GetType().Name+"\" were finished." ));
+                    log.WriteMessage("Regular task \"" + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name + "\" were finished."));
                 }
             }
         }
