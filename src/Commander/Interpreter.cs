@@ -79,13 +79,13 @@ namespace Commander
             }
             LocalTaskIsDone.Set();
         }
-        public void Execute(ICommand cmd, TimeSpan interval, DateTime? launchTime = null, int? launchCount = null) {
+        public void Execute(ICommand cmd, TimeSpan interval, DateTime? launchTime = null, int? count = null) {
             AttachLogTo(cmd);
             Scheduler.AddTask(
                 commandFactory: new SingletoneCommandAbstractFactory(cmd),
                 properties:     new CommandRunProperties {
                      At     = launchTime,
-                     Count  = launchCount,
+                     Count  = count,
                      Every  = interval,
                 });
         }
