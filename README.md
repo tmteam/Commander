@@ -1,7 +1,7 @@
-# Commander #
+# Gin #
 Simple Background Worker
 
-Allows you to run regular tasks under windows dispatcher, or by buit-in task dispatcher.
+Allows you to run commands and/or regular tasks under windows dispatcher, or by buit-in task dispatcher.
 
 ## Examples: ##
 
