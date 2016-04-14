@@ -10,13 +10,12 @@ namespace TheGin.Example
     [Command("a/b math operation")]
     public class DivideCommand: CommandBase<double>
     {
-        [CommandArgument("a", "Double, that is divided by divider (b) ")]
+        [Setting("a", "Double, that is divided by divider (b) ")]
         public double Dividend { get; set; }
-        [CommandArgument("b", "Double, who divide divider (a)")]
+        [Setting("b", "Double, who divides divider (a)")]
         public double Divider { get; set; }
 
-        protected override double RunAndReturn()
-        {
+        protected override double RunAndReturn() {
             Log.WriteMessage("output from the inside of command ");
             if (Divider == 0) {
                 Log.WriteError("Divider is 0. Answer will be equal to Double.NaN");

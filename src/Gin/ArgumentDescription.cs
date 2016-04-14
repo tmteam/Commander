@@ -9,7 +9,7 @@ namespace TheGin
 {
     public class ArgumentDescription
     {
-        public CommandArgumentAttribute Attribute;
+        public SettingAttribute Attribute;
         public PropertyInfo Property;
     }
 }

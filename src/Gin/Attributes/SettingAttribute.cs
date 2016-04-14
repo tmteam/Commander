@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace TheGin
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class CommandArgumentAttribute : Attribute
+    public class SettingAttribute : Attribute
     {
-        public CommandArgumentAttribute() { }
-        public CommandArgumentAttribute(string shortAlias, string description)
+        public SettingAttribute() { }
+        public SettingAttribute(string shortAlias, string description)
         {
             this.Optional = true;
             this.ShortAlias = shortAlias;

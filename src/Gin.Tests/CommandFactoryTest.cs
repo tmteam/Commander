@@ -29,7 +29,7 @@ namespace TheGin.Tests
                 .FirstOrDefault(d => d.Attribute.Description == "someCommandDescription");
             
             var intDescription = description.Arguments
-                .FirstOrDefault(a => a.Attribute is CommandArgumentAttribute
+                .FirstOrDefault(a => a.Attribute is SettingAttribute
                     && a.Attribute.Description == "someIntegerDescription" 
                     && a.Attribute.ShortAlias == "int"
                     && a.Property.PropertyType == typeof(int)
@@ -40,7 +40,7 @@ namespace TheGin.Tests
 
 
             var strDescription = description.Arguments
-                .FirstOrDefault(a => a.Attribute is CommandArgumentAttribute
+                .FirstOrDefault(a => a.Attribute is SettingAttribute
                     && a.Attribute.Description == "someStringDescription"
                     && a.Attribute.ShortAlias == "str"
                     && a.Property.PropertyType == typeof(string)

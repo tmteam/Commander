@@ -166,9 +166,9 @@ namespace TheGin.Tests
 
     class SomeObjectWithProperties
     {
-        [CommandArgument(ShortAlias= "argi")]
+        [Setting(ShortAlias= "argi")]
         public int i { get; set; }
-        [CommandArgument(ShortAlias= "someflag")]
+        [Setting(ShortAlias= "someflag")]
         public bool flag { get; set; }
     }
     class SmartSplitCase

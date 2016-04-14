@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class CommandFactory : ICommandAbstractFactory
+    public class CommandFactory 
     {
         readonly Func<ICommand> _factory;
         readonly Dictionary<PropertyInfo, object> _configuration;
-        public CommandFactory(Func<ICommand> factory, Dictionary<PropertyInfo, object> configuration)
+        public CommandFactory(Func<ICommand> factory, Dictionary<PropertyInfo, object> configuration =null)
         {
-            this._configuration = configuration;
+            this._configuration = configuration?? new Dictionary<PropertyInfo, object>();
             this._factory = factory;
         }
         public ICommand GetReadyToGoInstance()

@@ -10,13 +10,13 @@ namespace TheGin.Tests
     [Command("someCommandDescription")]
     public class TestAttributesCommand: CommandBase
     {
-        [CommandArgument("int", "someIntegerDescription")]
+        [Setting("int", "someIntegerDescription")]
         public int IntProperty { get; set; }
 
-        [CommandArgument("str","someStringDescription", Optional = false)]
+        [Setting("str","someStringDescription", Optional = false)]
         public string StringProperty { get; set; }
 
-        [CommandArgument("flag", "someFlagDescription")]
+        [Setting("flag", "someFlagDescription")]
         public bool BoolProperty { get; set; }
         public override void Run()
         {

@@ -39,7 +39,7 @@ namespace TheGin
                  new ArgumentDescription
                  {
                      Property = p,
-                     Attribute = p.GetCustomAttribute<CommandArgumentAttribute>()
+                     Attribute = p.GetCustomAttribute<SettingAttribute>()
                  }).Where(c => c.Attribute != null).ToArray();
         }
         public static CommandAttribute GetCommandAttributeOrThrow(Type type)

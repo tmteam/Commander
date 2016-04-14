@@ -8,10 +8,10 @@ namespace TheGin
 {
     public class RunInCycleWrapper: CommandBase
     {
-        readonly ICommandAbstractFactory factory;
+        readonly CommandFactory factory;
         readonly int count;
         readonly Executor executor;
-        public RunInCycleWrapper(ICommandAbstractFactory factory, int count, Executor executor)
+        public RunInCycleWrapper(CommandFactory factory, int count, Executor executor)
         {
             this.factory = factory;
             this.count = count;

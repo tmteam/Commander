@@ -40,11 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArgumentDescription.cs" />
-    <Compile Include="Attributes\CommandArgumentAttribute.cs" />
+    <Compile Include="Attributes\SettingAttribute.cs" />
     <Compile Include="Attributes\CommandAttribute.cs" />
     <Compile Include="CommandFactory.cs" />
-    <Compile Include="CommandSingletoneFactory.cs" />
-    <Compile Include="ICommandAbstractFactory.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="CommandSketch.cs" />
     <Compile Include="Executor.cs" />

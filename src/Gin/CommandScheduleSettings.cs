@@ -8,13 +8,13 @@ namespace TheGin
 {
     public class CommandScheduleSettings
     {
-        [CommandArgument(ShortAlias= "at", Description= "", Optional = true)]
+        [Setting(ShortAlias= "at", Description= "", Optional = true)]
         public DateTime? At { get; set; }
 
-        [CommandArgument(ShortAlias= "every", Description= "", Optional = true)]
+        [Setting(ShortAlias= "every", Description= "", Optional = true)]
         public TimeSpan? Every { get; set; }
 
-        [CommandArgument(
+        [Setting(
             Optional = true, 
             ShortAlias = "count",
             Description = "max execution count")]

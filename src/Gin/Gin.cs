@@ -37,7 +37,7 @@ namespace TheGin
         }
         public void Execute(ICommand cmd, CommandScheduleSettings scheduleSettings) {
             Execute( new Instruction{
-                      Factory           = new CommandSingletoneFactory(cmd),
+                      Factory           = new CommandFactory(()=>cmd, new Dictionary<PropertyInfo,object>()),
                       ScheduleSettings  = scheduleSettings
                  });
         }

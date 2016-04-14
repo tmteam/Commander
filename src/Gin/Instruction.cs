@@ -8,7 +8,7 @@ namespace TheGin
 {
     public class Instruction
     {
-        public ICommandAbstractFactory Factory { get; set; }
+        public CommandFactory Factory { get; set; }
         public CommandScheduleSettings ScheduleSettings { get; set; }
     }
 }
