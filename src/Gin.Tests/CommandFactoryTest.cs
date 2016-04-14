@@ -1,4 +1,4 @@
-﻿using Gin;
+﻿using TheGin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Gin.Tests
+namespace TheGin.Tests
 {
     [TestClass]
     public class CommandFactoryTest
@@ -20,15 +20,15 @@ namespace Gin.Tests
         [TestMethod] public void TestCommandAttribute()
         {
             if (CreateFactory().Descriptions
-                .FirstOrDefault(d => d.attribute.Description == "someCommandDescription") == null)
+                .FirstOrDefault(d => d.Attribute.Description == "someCommandDescription") == null)
                 Assert.Fail("Got no command description");
         }
         [TestMethod] public void TestCommandArgumentsDescription()
         {
             var description = CreateFactory().Descriptions
-                .FirstOrDefault(d => d.attribute.Description == "someCommandDescription");
+                .FirstOrDefault(d => d.Attribute.Description == "someCommandDescription");
             
-            var intDescription = description.arguments
+            var intDescription = description.Arguments
                 .FirstOrDefault(a => a.Description is CommandArgumentAttribute
                     && a.Description.Description == "someIntegerDescription" 
                     && a.Description.ShortAlias == "int"
@@ -39,7 +39,7 @@ namespace Gin.Tests
                 Assert.Fail("Got no correct int description");
 
 
-            var strDescription = description.arguments
+            var strDescription = description.Arguments
                 .FirstOrDefault(a => a.Description is CommandArgumentAttribute
                     && a.Description.Description == "someStringDescription"
                     && a.Description.ShortAlias == "str"
@@ -48,7 +48,7 @@ namespace Gin.Tests
             if (strDescription == null)
                 Assert.Fail("Got no correct str description");
 
-            var flagDescription = description.arguments
+            var flagDescription = description.Arguments
                 .FirstOrDefault(a => a.Description is FlagArgumentAttribute
                     && a.Description.Description == "someFlagDescription"
                     && a.Description.ShortAlias == "flag"

@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
-    public class TypeScanner
+    public class TypeScanner : ICommandLibrary
     {
         Dictionary<string, CommandDescription> commands 
             = new Dictionary<string, CommandDescription>();
@@ -27,46 +27,39 @@ namespace Gin
             this.Registrate(typeof(T));
         }
 
-        public void Registrate(CommandDescription description)
-        {
-            string key = ParseTools.NormalizeCommandTypeName(description.type.Name).ToLower();
-            this.commands.Add(key, description);
-        }
-
+       
         public void Registrate(ICommand exemplar)
         {
             CommandDescription description = new CommandDescription {
-                arguments = ReflectionTools.GetArgumentsDescription(exemplar.GetType()),
-                attribute = ReflectionTools.GetCommandAttributeOrThrow(exemplar.GetType()),
-                exemplarFactory = new SingletoneCommandAbstractFactory(exemplar),
-                type = exemplar.GetType()
+                Arguments = ReflectionTools.GetArgumentsDescription(exemplar.GetType()),
+                Attribute = ReflectionTools.GetCommandAttributeOrThrow(exemplar.GetType()),
+                Exemplar  = exemplar
             };
             this.Registrate(description);
         }
 
         public void Registrate(Type type)
         {
-            CommandAttribute commandAttributeOrThrow = ReflectionTools.GetCommandAttributeOrThrow(type);
-            if (!typeof(ICommand).IsAssignableFrom(type))
-            {
-                throw new ArgumentException("Does not implement ICommand");
-            }
-            if (type.GetConstructor(new Type[0]) == null)
-            {
-                throw new ArgumentException("Got no empty constructor");
-            }
-            this.Registrate(type, commandAttributeOrThrow);
+            ReflectionTools.ThrowIfItIsNotValidCommand(type);
+            var cmdAttribute = ReflectionTools.GetCommandAttributeOrThrow(type);
+            this.Registrate(type, cmdAttribute);
         }
 
-        private void Registrate(Type type, CommandAttribute attribute)
+        void Registrate(Type type, CommandAttribute attribute)
         {
+            ReflectionTools.ThrowIfItIsNotValidCommand(type);
             var description = new CommandDescription {
-                type = type,
-                attribute = attribute,
-                arguments = ReflectionTools.GetArgumentsDescription(type),
-                exemplarFactory = new ReflectionCommandAbstractFactory(type)
+                Attribute = attribute,
+                Arguments = ReflectionTools.GetArgumentsDescription(type),
+                Exemplar  = (ICommand) Activator.CreateInstance(type)
             };
             this.Registrate(description);
+        }
+
+        void Registrate(CommandDescription description)
+        {
+            string key = ParseTools.NormalizeCommandTypeName(description.Exemplar.GetType().Name).ToLower();
+            this.commands.Add(key, description);
         }
 
         public void ScanAssembly(Assembly assembly)

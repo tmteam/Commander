@@ -1,11 +1,11 @@
-﻿using Gin;
+﻿using TheGin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin.Example
+namespace TheGin.Example
 {
     [Command("Generate tree")]
     public class ReturnTreeCommand: CommandBase<Node>

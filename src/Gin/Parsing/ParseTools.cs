@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
     public static class ParseTools
     {

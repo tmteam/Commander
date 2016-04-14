@@ -6,10 +6,21 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Collections;
 
-namespace Gin
+namespace TheGin
 {
     public static class ReflectionTools
     {
+        public static void ThrowIfItIsNotValidCommand(Type commandType)
+        {
+            if (!typeof(ICommand).IsAssignableFrom(commandType))
+            {
+                throw new ArgumentException("Does not implement ICommand");
+            }
+            if (commandType.GetConstructor(new Type[0]) == null)
+            {
+                throw new ArgumentException("Got no empty constructor");
+            }
+        }
         public static bool IsNullable(Type type)
         {
             //check for nullable types: (https://msdn.microsoft.com/en-us/library/ms366789.aspx)

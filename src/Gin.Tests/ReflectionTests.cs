@@ -1,4 +1,4 @@
-﻿using Gin;
+﻿using TheGin;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin.Tests
+namespace TheGin.Tests
 {
     [TestClass]
     public class ReflectionTests

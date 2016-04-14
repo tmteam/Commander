@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
     public class DateTimeValue
     {
         public DateTimeValue() { }
-        public DateTimeValue(DateTime time)
-        {
+        public DateTimeValue(DateTime time) {
             Parse(time);
         }
         public DateTimeValue(TimeSpan timeSpan)

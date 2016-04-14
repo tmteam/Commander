@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
     public class FileLog : ILog
     {

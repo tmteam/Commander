@@ -7,8 +7,8 @@
     <ProjectGuid>{CFBE0496-7667-4104-98BA-DED7CEABC336}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gin.Example</RootNamespace>
-    <AssemblyName>Gin.Example</AssemblyName>
+    <RootNamespace>TheGin.Example</RootNamespace>
+    <AssemblyName>TheGin.Example</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

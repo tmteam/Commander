@@ -4,16 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
-{
+namespace TheGin {
     public class TaskPlan
     {
-        public ICommandAbstractFactory CommandFactory;
-        public TimeSpan? interval;
-        public DateTime plannedTime;
-        public int executedCount = 0;
-        public int? maxExecutionCount = null;
+        public Instruction Instruction;
+        public int ExecutedCount = 0;
+        public DateTime? PlannedTime;
     }
-
-
 }

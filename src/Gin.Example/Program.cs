@@ -1,4 +1,4 @@
-﻿using Gin;
+﻿using TheGin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin.Example
+namespace TheGin.Example
 {
 
 
@@ -31,23 +31,26 @@ namespace Gin.Example
 
         static void Main(string[] args) {
 
-            var interpreter = new Interpreter(
-                        scanner: new TypeScanner(), 
+            var scanner = new TypeScanner();
+            scanner.ScanAssembly(Assembly.GetEntryAssembly());
+            var gin = new Gin(
+                        library: scanner, 
                         log:     new DecoratorLog( 
                                     new ConsoleLog(), 
                                     new FileLog(10000, "TheLog.txt")));
-            
-            interpreter.Log.WriteMessage("Gin lauched");
-            
-            interpreter.CommandInformation.ScanAssembly(Assembly.GetEntryAssembly());
+
+            gin.AddHelp();
+            gin.AddExit();
+
+            gin.Log.WriteMessage("Gin lauched");
 
             if (!Environment.UserInteractive)
             {
-                interpreter.Log.WriteMessage("Executed as a service");
+                gin.Log.WriteMessage("Executed as a service");
                 //Do whatever you want here as a service...
 
                 //Will be executed in scheduler's timer thread:
-                interpreter.Execute("divide  a 10  b 5  at 02:00  every 24h");
+                gin.Execute("divide  a 10  b 5  at 02:00  every 24h");
                 //You can use different argument styles and combine them
                 //interpreter.Execute("divide a: 10  b: 5  at 02:00  every 24h");
                 //interpreter.Execute("divide -a 10  -b 5  -at 02:00  every \"24h\"");
@@ -65,23 +68,23 @@ namespace Gin.Example
                 */
 
                 //Will be executed in this thread:
-                interpreter.Execute("writeHello");
+                gin.Execute("writeHello");
                 
-                interpreter.WaitForFinsh();
+                gin.WaitForFinsh();
             } else if (args.Length > 0) { // when it's executed with parameters:
-                interpreter.Execute(args);
+                gin.Execute(args);
                 
-                interpreter.Log.WriteMessage("Goodbye. Press any key to continue...");
+                gin.Log.WriteMessage("Goodbye. Press any key to continue...");
                 Console.ReadLine();
             } else { // when it's executed as a console application:
 
-                interpreter.AddExitCommand();
-                interpreter.AddHelpCommand();
-                interpreter.Execute("help");
+                //interpreter.AddExitCommand();
+                //interpreter.AddHelpCommand();
+                gin.Execute("help");
                 
-                interpreter.RunInputLoop();
+                gin.RunInputLoop();
                 
-                interpreter.Log.WriteMessage("Goodbye. Press any key to continue...");
+                gin.Log.WriteMessage("Goodbye. Press any key to continue...");
                 Console.ReadLine();
             }
         }

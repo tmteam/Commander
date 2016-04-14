@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Gin;
+using TheGin;
 using System.Collections.Generic;
 
-namespace Gin.Tests
+namespace TheGin.Tests
 {
     [TestClass]
     public class FullTest

@@ -1,4 +1,4 @@
-﻿using Gin;
+﻿using TheGin;
 using System;
 using System.Collections.Generic;
 using System.Configuration.Install;
@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin.Example
+namespace TheGin.Example
 {
     [Command("Deregistrate the commander as a service (administrator only)")]
     public class UnistallCommand: CommandBase

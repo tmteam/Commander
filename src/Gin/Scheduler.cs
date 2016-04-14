@@ -6,103 +6,113 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace Gin
+namespace TheGin
 {
     public class Scheduler
     {
-        Action<ICommand> executer;
-        List<TaskPlan> plans = new  List<TaskPlan>();
-        ILog log = null;
-        System.Timers.Timer Timer;
         public bool IsKilled { get; private set; }
-        object locker = new object();
-        ManualResetEvent TasksDone;
-        public Scheduler(Action<ICommand> executer, ILog log = null,  int resolutionInMsec = 1000)
+
+        readonly List<TaskPlan> _plans;
+        readonly ILog _log ;
+        readonly System.Timers.Timer _timer;
+        readonly object _locker;
+        readonly ManualResetEvent _tasksDone;
+        readonly Executor _executor;
+        public Scheduler(Executor executor, ILog log = null,  int resolutionInMsec = 1000)
         {
-            this.log = log ?? new ConsoleLog();
             this.IsKilled = false;
-            this.executer = executer;
-            this.Timer = new System.Timers.Timer((double)resolutionInMsec);
-            this.Timer.Elapsed += new ElapsedEventHandler(this.Timer_Elapsed);
-            this.Timer.Start();
-            TasksDone = new ManualResetEvent(true);
+
+            this._log = log ?? new ConsoleLog();
+            this._executor = executor;
+            this._tasksDone = new ManualResetEvent(true);
+            this._locker = new object();
+            this._plans = new  List<TaskPlan>();
+
+            this._timer = new System.Timers.Timer((double)resolutionInMsec);
+            this._timer.Elapsed += new ElapsedEventHandler(this.Timer_Elapsed);
+            this._timer.Start();
         }
         public void WaitForFinish()
         {
-            this.TasksDone.WaitOne();
+            this._tasksDone.WaitOne();
         }
         public bool WaitForFinish(int msec = 0)
         {
-           return TasksDone.WaitOne(msec);
+           return _tasksDone.WaitOne(msec);
         }
-
-        public virtual void AddTask(ICommandAbstractFactory commandFactory, CommandRunProperties properties) {
+        public void Add(Instruction instruction)
+        {
             this.ThrowIfKilled();
             var firstTime = DateTime.Now;
-            if (properties.At.HasValue){
-                firstTime = properties.At.Value;
-                if(firstTime<DateTime.Now)
+            if (instruction.ScheduleProperties.At.HasValue)
+            {
+                firstTime = instruction.ScheduleProperties.At.Value;
+                if (firstTime < DateTime.Now)
                     firstTime = firstTime.AddDays(1);
             }
-            var plan = new TaskPlan {
-                CommandFactory    = commandFactory,
-                maxExecutionCount = properties.Count,
-                interval           = properties.Every,
-                plannedTime        = firstTime
+            var plan = new TaskPlan
+            {
+                Instruction = instruction,
+                PlannedTime = firstTime
             };
 
-            lock (locker) {
-                TasksDone.Reset();
-                plans.Add(plan);
+            lock (_locker)
+            {
+                _tasksDone.Reset();
+                _plans.Add(plan);
             }
         }
 
         public void Kill() {
             this.ThrowIfKilled();
-            this.Timer.Stop();
+            this._timer.Stop();
             IsKilled = true;
         }
 
-        private void ThrowIfKilled() {
+        void ThrowIfKilled() {
             if (IsKilled)
                 throw new InvalidOperationException("Вы не можете выполнить операцию, так как планировщик уже убит(IsKilled = true)");
         }
 
-        private void Timer_Elapsed(object sender, ElapsedEventArgs e) {
+        void Timer_Elapsed(object sender, ElapsedEventArgs e) {
             TaskPlan[] plansArray = null;
-            
-            lock(locker)
-                plansArray = this.plans.Where(p => p.plannedTime <= DateTime.Now).ToArray();
-            
+
+            lock (_locker) {
+                plansArray = this._plans
+                    .Where(p => p.PlannedTime <= DateTime.Now)
+                    .ToArray();
+            }
             foreach (var plan in plansArray) {
 
                 if (IsKilled)
                     break;
 
-                var exemplar = plan.CommandFactory.GetExemplar();
+                var exemplar = plan.Instruction.ConfiguredCommand;
 
-                log.WriteMessage("Regular task \""
+                _log.WriteMessage("Regular task \""
                     + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name)
-                    + "\". Executed: "+ (plan.executedCount+1) 
-                    + (plan.maxExecutionCount.HasValue?(" of "+ plan.maxExecutionCount.Value):"") + ". "
-                    + (plan.interval.HasValue? ("Interval: "+ (plan.interval.Value)):""));
-                
-                if(plan.interval.HasValue)
-                    plan.plannedTime += plan.interval.Value;
-               
-                this.executer(exemplar);
-                plan.executedCount++;
+                    + "\". Executed: "+ (plan.ExecutedCount+1)
+                    + (plan.Instruction.ScheduleProperties.Count.HasValue ? (" of " + plan.Instruction.ScheduleProperties.Count.Value) : "") + ". "
+                    + (plan.Instruction.ScheduleProperties.Every.HasValue ? ("Interval: " + (plan.Instruction.ScheduleProperties.Every.Value)) : ""));
 
-                if (plan.maxExecutionCount.HasValue && plan.executedCount >= plan.maxExecutionCount) {
+                if (plan.Instruction.ScheduleProperties.Every.HasValue)
+                    plan.PlannedTime += plan.Instruction.ScheduleProperties.Every.Value;
+               
+                this._executor.Run(exemplar);
+                plan.ExecutedCount++;
+
+                if (plan.Instruction.ScheduleProperties.Count.HasValue 
+                    && plan.ExecutedCount >= plan.Instruction.ScheduleProperties.Count)
+                {
                     bool hasOtherTasks = false;
-                    lock (locker)
+                    lock (_locker)
                     {
-                        plans.Remove(plan);
-                        hasOtherTasks = plans.Any();
+                        _plans.Remove(plan);
+                        hasOtherTasks = _plans.Any();
                     }
-                    log.WriteMessage("Regular task \"" + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name + "\" were finished."));
+                    _log.WriteMessage("Regular task \"" + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name + "\" were finished."));
                     if (!hasOtherTasks)
-                        TasksDone.Set();
+                        _tasksDone.Set();
                 }
             }
             

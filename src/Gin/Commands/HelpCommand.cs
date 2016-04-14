@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
     [Command("Show allowed commands help")]
     public class HelpCommand : CommandBase
@@ -26,8 +26,8 @@ namespace Gin
             StringBuilder msg = new StringBuilder("Threre are " + this.Commands.Count<CommandDescription>() + " commands: \r\n");
             foreach (CommandDescription description in this.Commands)
             {
-                msg.AppendLine("[" + ParseTools.NormalizeCommandTypeName(description.type.Name) + "] - " + description.attribute.Description);
-                ArgumentDescription[] descriptionArray = (from a in description.arguments
+                msg.AppendLine("[" + ParseTools.NormalizeCommandTypeName(description.Exemplar.GetType().Name) + "] - " + description.Attribute.Description);
+                ArgumentDescription[] descriptionArray = (from a in description.Arguments
                                                           where !a.Description.Optional
                                                           select a).ToArray<ArgumentDescription>();
                 if (descriptionArray.Length > 0)
@@ -38,7 +38,7 @@ namespace Gin
                         this.fillArgDescription(msg, description2);
                     }
                 }
-                ArgumentDescription[] descriptionArray2 = (from a in description.arguments
+                ArgumentDescription[] descriptionArray2 = (from a in description.Arguments
                                                            where a.Description.Optional
                                                            select a).ToArray<ArgumentDescription>();
                 if (descriptionArray2.Length > 0)

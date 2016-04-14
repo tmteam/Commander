@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using Gin;
+using TheGin;
 
-namespace Gin.Tests
+namespace TheGin.Tests
 {
     [TestClass]
     public class ParseTest

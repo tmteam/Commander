@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class CommandArgumentAttribute : Attribute, IArgumentDescription

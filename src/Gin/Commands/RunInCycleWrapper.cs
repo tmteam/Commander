@@ -4,24 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
     public class RunInCycleWrapper: CommandBase
     {
-        readonly ICommand command;
+        readonly ICommand cmd;
         readonly int count;
-        readonly Action<ICommand> executor;
-        public RunInCycleWrapper(ICommand command, int count, Action<ICommand> executor)
+        readonly Executor executor;
+        public RunInCycleWrapper(ICommand cmd, int count, Executor executor)
         {
-            this.command = command;
+            this.cmd = cmd;
             this.count = count;
             this.executor = executor;
         }
 
         public override void Run() {
             for (int i = 0; i < count; i++) {
-                Log.WriteMessage("\"" + ParseTools.NormalizeCommandTypeName(command.GetType().Name) + "\"'s iteration " + i + " of " + count);
-                executor(command);
+                Log.WriteMessage("\"" + ParseTools.NormalizeCommandTypeName(cmd.GetType().Name) + "\"'s iteration " + i + " of " + count);
+                executor.Run(cmd);
             }
             Log.WriteMessage("Cycle finished");
         }
@@ -31,9 +31,7 @@ namespace Gin
             }
             set {
                 base.Log = value;
-                var loggable = command as ILoggable;
-                if (loggable != null)
-                    loggable.Log = value;
+                value.AttachTo(cmd);
             }
         }
     }

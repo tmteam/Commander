@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gin
+namespace TheGin
 {
     [Command("Close current application")]
     public class ExitCommand : CommandBase
     {
-        private readonly Interpreter interpreter;
+        private readonly Gin interpreter;
 
-        public ExitCommand(Interpreter interpreter)
+        public ExitCommand(Gin interpreter)
         {
             this.interpreter = interpreter;
         }
