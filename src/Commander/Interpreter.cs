@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Commander
         public ILog Log { get; set; }
         public TypeScanner CommandInformation { get; set; }
         public bool ExitFlag { get; set; }
-
+        ManualResetEvent LocalTaskIsDone = new ManualResetEvent(true);
         public Interpreter(TypeScanner scanner, ILog log = null) {
             this.CommandInformation = scanner;
             this.Log       = log?? new ConsoleLog();
@@ -29,6 +30,7 @@ namespace Commander
         public void AddExitCommand() {
             CommandInformation.Registrate(new ExitCommand(this));
         }
+
         public void Execute(string inputString){
             Execute(ParseTools.SmartSplit(inputString));
         }
@@ -38,6 +40,7 @@ namespace Commander
         }
         void Execute(List<string> argsList)
         {
+            LocalTaskIsDone.Reset();
             Log.WriteMessage(">> " + string.Concat(argsList.Select(a => a + " ")));
             var commandName = ParseTools.ExtractCommandName(argsList);
             
@@ -74,6 +77,7 @@ namespace Commander
             if (cmd != null) {
                 Execute(cmd);
             }
+            LocalTaskIsDone.Set();
         }
         public void Execute(ICommand cmd, TimeSpan interval, DateTime? launchTime = null, int? launchCount = null) {
             AttachLogTo(cmd);
@@ -141,9 +145,23 @@ namespace Commander
                 return command;
             }
         }
-        ManualResetEvent mres = new ManualResetEvent(false);
-        public void WaitForFinshed() {
-            mres.WaitOne();
+
+        public void WaitForFinsh()
+        {
+            LocalTaskIsDone.WaitOne();
+            this.Scheduler.WaitForFinish();
+        }
+        
+        public bool WaitForFinsh(int msec = 0) {
+            
+            var sw = new Stopwatch();
+            sw.Start();
+            var ans = LocalTaskIsDone.WaitOne(msec);
+            if (!ans)
+                return false;
+            sw.Stop();
+            msec = Math.Max(msec - (int)sw.ElapsedMilliseconds, 0);
+            return this.Scheduler.WaitForFinish(msec);
         }
         void AttachLogTo(ICommand cmd) {
             var loggable = cmd as ILoggable;

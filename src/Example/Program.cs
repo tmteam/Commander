@@ -29,7 +29,8 @@ namespace Example
                 interpreter.Execute("divide  a 10  b 5  at 02:00  every 24h");
                 interpreter.Execute("writeHello");
                 
-                interpreter.WaitForFinshed();
+                interpreter.WaitForFinsh();
+
             } else if (args.Length > 0) { // when it's executed with parameters:
                 interpreter.Execute(args);
                 return;

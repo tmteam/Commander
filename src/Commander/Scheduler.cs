@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -12,22 +13,31 @@ namespace Commander
         Action<ICommand> executer;
         List<TaskPlan> plans = new  List<TaskPlan>();
         ILog log = null;
-        Timer Timer;
+        System.Timers.Timer Timer;
         public bool IsKilled { get; private set; }
         object locker = new object();
+        ManualResetEvent TasksDone;
         public Scheduler(Action<ICommand> executer, ILog log = null,  int resolutionInMsec = 1000)
         {
             this.log = log ?? new ConsoleLog();
             this.IsKilled = false;
             this.executer = executer;
-            this.Timer = new Timer((double) resolutionInMsec);
+            this.Timer = new System.Timers.Timer((double)resolutionInMsec);
             this.Timer.Elapsed += new ElapsedEventHandler(this.Timer_Elapsed);
             this.Timer.Start();
+            TasksDone = new ManualResetEvent(true);
+        }
+        public void WaitForFinish()
+        {
+            this.TasksDone.WaitOne();
+        }
+        public bool WaitForFinish(int msec = 0)
+        {
+           return TasksDone.WaitOne(msec);
         }
 
         public virtual void AddTask(ICommandAbstractFactory commandFactory, CommandRunProperties properties) {
             this.ThrowIfKilled();
-
             var firstTime = DateTime.Now;
             if (properties.At.HasValue){
                 firstTime = properties.At.Value;
@@ -42,6 +52,7 @@ namespace Commander
             };
 
             lock (locker) {
+                TasksDone.Reset();
                 plans.Add(plan);
             }
         }
@@ -83,11 +94,18 @@ namespace Commander
                 plan.executedCount++;
 
                 if (plan.maxExecutionCount.HasValue && plan.executedCount >= plan.maxExecutionCount) {
-                    lock(locker)
+                    bool hasOtherTasks = false;
+                    lock (locker)
+                    {
                         plans.Remove(plan);
+                        hasOtherTasks = plans.Any();
+                    }
                     log.WriteMessage("Regular task \"" + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name + "\" were finished."));
+                    if (!hasOtherTasks)
+                        TasksDone.Set();
                 }
             }
+            
         }
     }
 }
