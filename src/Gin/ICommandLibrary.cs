@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 namespace TheGin
 {
     public interface ICommandLibrary
     {
-        System.Collections.Generic.IEnumerable<CommandDescription> Descriptions { get; }
-        CommandDescription GetOrNull(string name);
+        CommandSketch GetOrNull(string commandName);
         void Registrate(ICommand exemplar);
         void Registrate(Type cmdType);
+        IEnumerable<CommandSketch> Sketches { get; } 
     }
 }

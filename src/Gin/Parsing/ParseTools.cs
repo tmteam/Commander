@@ -62,8 +62,9 @@ namespace TheGin
             }
             throw new InvalidArgumentException(nonNullType, value, alias);
         }
-        public static string NormalizeCommandTypeName(string name)
+        public static string GetCommandName(Type commandType)
         {
+            var name = commandType.Name;
             if (name.EndsWith("Command"))
                 name = name.Remove(name.Length - 7);
             return name;

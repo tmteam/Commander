@@ -19,43 +19,34 @@ namespace TheGin.Tests
         }
         [TestMethod] public void TestCommandAttribute()
         {
-            if (CreateFactory().Descriptions
+            if (CreateFactory().Sketches
                 .FirstOrDefault(d => d.Attribute.Description == "someCommandDescription") == null)
                 Assert.Fail("Got no command description");
         }
         [TestMethod] public void TestCommandArgumentsDescription()
         {
-            var description = CreateFactory().Descriptions
+            var description = CreateFactory().Sketches
                 .FirstOrDefault(d => d.Attribute.Description == "someCommandDescription");
             
             var intDescription = description.Arguments
-                .FirstOrDefault(a => a.Description is CommandArgumentAttribute
-                    && a.Description.Description == "someIntegerDescription" 
-                    && a.Description.ShortAlias == "int"
+                .FirstOrDefault(a => a.Attribute is CommandArgumentAttribute
+                    && a.Attribute.Description == "someIntegerDescription" 
+                    && a.Attribute.ShortAlias == "int"
                     && a.Property.PropertyType == typeof(int)
-                    && a.Description.Optional);
+                    && a.Attribute.Optional);
             
             if (intDescription == null)
                 Assert.Fail("Got no correct int description");
 
 
             var strDescription = description.Arguments
-                .FirstOrDefault(a => a.Description is CommandArgumentAttribute
-                    && a.Description.Description == "someStringDescription"
-                    && a.Description.ShortAlias == "str"
+                .FirstOrDefault(a => a.Attribute is CommandArgumentAttribute
+                    && a.Attribute.Description == "someStringDescription"
+                    && a.Attribute.ShortAlias == "str"
                     && a.Property.PropertyType == typeof(string)
-                    && !a.Description.Optional);
+                    && !a.Attribute.Optional);
             if (strDescription == null)
                 Assert.Fail("Got no correct str description");
-
-            var flagDescription = description.Arguments
-                .FirstOrDefault(a => a.Description is FlagArgumentAttribute
-                    && a.Description.Description == "someFlagDescription"
-                    && a.Description.ShortAlias == "flag"
-                    && a.Property.PropertyType == typeof(bool) 
-                    && !a.Description.Optional);
-            if (flagDescription == null)
-                Assert.Fail("Got no correct flag description");
         }
     }
 }

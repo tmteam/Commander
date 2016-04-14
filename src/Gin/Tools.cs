@@ -15,7 +15,7 @@ namespace TheGin
                 loggable.Log = log;
         }
         public static void AddHelp(this Gin gin) {
-            gin.Library.Registrate(new HelpCommand(gin.Library.Descriptions));
+            gin.Library.Registrate(new HelpCommand(gin.Library.Sketches));
         }
         public static void AddExit(this Gin gin) {
             gin.Library.Registrate(new ExitCommand(gin));

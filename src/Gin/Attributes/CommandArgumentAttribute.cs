@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TheGin
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class CommandArgumentAttribute : Attribute, IArgumentDescription
+    public class CommandArgumentAttribute : Attribute
     {
         public CommandArgumentAttribute() { }
         public CommandArgumentAttribute(string shortAlias, string description)

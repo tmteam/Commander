@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class CommandRunProperties
+    public class CommandScheduleSettings
     {
         [CommandArgument(ShortAlias= "at", Description= "", Optional = true)]
         public DateTime? At { get; set; }

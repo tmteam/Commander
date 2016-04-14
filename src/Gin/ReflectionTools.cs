@@ -39,10 +39,8 @@ namespace TheGin
                  new ArgumentDescription
                  {
                      Property = p,
-                     Description
-                         = (IArgumentDescription)p.GetCustomAttribute<CommandArgumentAttribute>()
-                         ?? (IArgumentDescription)p.GetCustomAttribute<FlagArgumentAttribute>()
-                 }).Where(c => c.Description != null).ToArray();
+                     Attribute = p.GetCustomAttribute<CommandArgumentAttribute>()
+                 }).Where(c => c.Attribute != null).ToArray();
         }
         public static CommandAttribute GetCommandAttributeOrThrow(Type type)
         {
@@ -91,68 +89,69 @@ namespace TheGin
                 ans.AppendLine(linePrefix + type.Name + ": " + Describe(type.GetValue(value), new string(' ', (linePrefix ?? "").Length + 2)));
             return ans.ToString();
         }
-        public static void ExtractAnsSetToProperties(List<string> args, IEnumerable<ArgumentDescription> properties, object target)
+        public static void Configurate(object obj, Dictionary<PropertyInfo, object> _configuration)
         {
+            foreach (var property in _configuration)
+            {
+                property.Key.SetValue(obj, property.Value);
+            }
+
+        }
+        public static Dictionary<PropertyInfo, object> ExtractAndParse(List<string> args, IEnumerable<ArgumentDescription> properties, Type type)
+        {
+            var ans = new Dictionary<PropertyInfo, object>();
             var notFoundedProperties = new List<string>();
             foreach (var description in properties)
             {
-                if (!SearchExactAndSetProperty(args, description, properties, target))
-                    notFoundedProperties.Add(description.Description.ShortAlias);
+                var val = SearchExactAndGetValue(args, description, properties, type);
+
+                if (val == null && !description.Attribute.Optional)
+                    notFoundedProperties.Add(description.Attribute.ShortAlias);
+                else
+                    ans.Add(description.Property, val);
             }
             if (notFoundedProperties.Count != 0)
                 throw new MissedArgumentsException(notFoundedProperties.ToArray());
-            
+            return ans;
         }
         /// <summary>
         /// Searching for the property value in the args list
         /// </summary>
-        /// <returns>true, if value have founded or it is optional, false otherwise</returns>
-        public static bool SearchExactAndSetProperty(List<string> args, ArgumentDescription property, IEnumerable<ArgumentDescription> otherProperties, object target)
+        /// <returns>value, if value have founded, null false otherwise</returns>
+        static object SearchExactAndGetValue(List<string> args, ArgumentDescription property, IEnumerable<ArgumentDescription> otherProperties, Type type)
         {
-            var propertyName = property.Description.ShortAlias.ToLower();
-            for (int i = 0; i < args.Count; i++)
-            {
-                if (propertyName == ParseTools.NormalizeCommandArgName(args[i])) {
-                    //match!
-                    var type = ReflectionTools.GetNonNullType(property.Property.PropertyType);
-                    var hasMore = (i < args.Count - 1);
-                    if (type == typeof(bool))//It can be flag!
+                var propertyName = property.Attribute.ShortAlias.ToLower();
+                for (int i = 0; i < args.Count; i++)
+                {
+                    if (propertyName == ParseTools.NormalizeCommandArgName(args[i]))
                     {
-                        if (!hasMore)
+                        //match!
+                        var propertyType = ReflectionTools.GetNonNullType(property.Property.PropertyType);
+                        var hasMore = (i < args.Count - 1);
+                        if (propertyType == typeof(bool))//It can be flag!
                         {
-                            property.Property.SetValue(target, true);
-                            args.RemoveAt(i);
-                            return true;
-                        }
-                        else if (otherProperties.Any(p => p.Description.ShortAlias.ToLower() == args[i + 1]))
-                        {
-                            property.Property.SetValue(target, true); //it means flag value
-                            args.RemoveAt(i);
-                            return true;
+                            if (!hasMore || otherProperties.Any(p => p.Attribute.ShortAlias.ToLower() == args[i + 1])) {
+                                args.RemoveAt(i);
+                                return true;//it means flag value
+                            } else {
+                                var value = ParseTools.Convert(args[i + 1], propertyType, property.Attribute.ShortAlias);
+                                args.RemoveAt(i); //extract the name and the value from the list
+                                args.RemoveAt(i);
+                                return value;
+                            }
                         }
                         else
                         {
-                            bool value = (bool)ParseTools.Convert(args[i + 1], type, property.Description.ShortAlias);
-                            property.Property.SetValue(target, value);
+                            if (!hasMore)
+                                throw new InvalidArgumentException(type, "", property.Attribute.ShortAlias);
+                            var nonBoolValue = ParseTools.Convert(args[i + 1], propertyType, property.Attribute.ShortAlias);
                             args.RemoveAt(i); //extract the name and the value from the list
                             args.RemoveAt(i);
-                            return true;
+                            return nonBoolValue;
                         }
                     }
-                    else
-                    {
-                        if (!hasMore)
-                            throw new InvalidArgumentException(type, "", property.Description.ShortAlias);
-                        var nonBoolValue = ParseTools.Convert(args[i + 1], type, property.Description.ShortAlias);
-                        property.Property.SetValue(target, nonBoolValue);
-                        args.RemoveAt(i); //extract the name and the value from the list
-                        args.RemoveAt(i);
-                        return true;
-                    }
                 }
-            }
-            return property.Description.Optional;
+                return null;
         }
-
     }
 }

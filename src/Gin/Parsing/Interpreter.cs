@@ -21,21 +21,19 @@ namespace TheGin
                 throw new UnknownCommandNameException(cmdName);
 
             var intervalArgumentsDescription
-                 = ReflectionTools.GetArgumentsDescription(typeof(CommandRunProperties));
-            
-            var intervalSettings = new CommandRunProperties();
+                 = ReflectionTools.GetArgumentsDescription(typeof(CommandScheduleSettings));
+            var intervalSettingsValues = ReflectionTools.ExtractAndParse(args, intervalArgumentsDescription, typeof(CommandScheduleSettings));
+            var intervalSettings = new CommandScheduleSettings();
+            ReflectionTools.Configurate(intervalSettings, intervalSettingsValues);
 
-            ReflectionTools.ExtractAnsSetToProperties(args, intervalArgumentsDescription, intervalSettings);
-            
-            ReflectionTools.ExtractAnsSetToProperties(args, description.Arguments, description.Exemplar);
+            var commandConfiguration = ReflectionTools.ExtractAndParse(args, description.Arguments, description.CommandType);
 
             if (args.Count != 0)
                 throw new UnknownArgumentsException(args.ToArray());
-            
-            return new Instruction
-            {
-                ConfiguredCommand  = description.Exemplar,
-                ScheduleProperties = intervalSettings,
+
+            return new Instruction {
+                Factory  = new CommandFactory(description.GetRawInstance, commandConfiguration),
+                ScheduleSettings = intervalSettings,
             };
         }
     }

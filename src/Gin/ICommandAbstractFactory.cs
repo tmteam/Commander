@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class ArgumentDescription
-    {
-        public CommandArgumentAttribute Attribute;
-        public PropertyInfo Property;
+    public interface ICommandAbstractFactory {
+        ICommand GetReadyToGoInstance();
     }
+
+   
+
 }

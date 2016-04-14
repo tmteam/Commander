@@ -8,31 +8,23 @@ namespace TheGin
 {
     public class RunInCycleWrapper: CommandBase
     {
-        readonly ICommand cmd;
+        readonly ICommandAbstractFactory factory;
         readonly int count;
         readonly Executor executor;
-        public RunInCycleWrapper(ICommand cmd, int count, Executor executor)
+        public RunInCycleWrapper(ICommandAbstractFactory factory, int count, Executor executor)
         {
-            this.cmd = cmd;
+            this.factory = factory;
             this.count = count;
             this.executor = executor;
         }
 
         public override void Run() {
             for (int i = 0; i < count; i++) {
-                Log.WriteMessage("\"" + ParseTools.NormalizeCommandTypeName(cmd.GetType().Name) + "\"'s iteration " + i + " of " + count);
+                var cmd = factory.GetReadyToGoInstance();
+                Log.WriteMessage("\"" + ParseTools.GetCommandName(cmd.GetType()) + "\"'s iteration " + i + " of " + count);
                 executor.Run(cmd);
             }
             Log.WriteMessage("Cycle finished");
-        }
-        public override ILog Log {
-            get {
-                return base.Log; 
-            }
-            set {
-                base.Log = value;
-                value.AttachTo(cmd);
-            }
         }
     }
 }

@@ -13,22 +13,6 @@ namespace TheGin.Example
 
     class Program
     {
-        /*
-        CommandFactory - создаёт экземпляр команды.
-        CommandScheduleSettings - настройки комманды
-
-        TaskSettings { 
-	        CommandFactory
-	        CommandScheduleSettings
-        }
-
-
-        interpritator   - ковертирует строки в описание команд и параметров их запуска.
-        handler         - запускает одну команду, согласно её описанию
-        scheduler       - вызывает хендлер согласно заданным параметрам расписания
-        Executor(Worker, TheManager) - внешний фасад команд.
-        */
-
         static void Main(string[] args) {
 
             var scanner = new TypeScanner();
@@ -52,22 +36,10 @@ namespace TheGin.Example
                 //Will be executed in scheduler's timer thread:
                 gin.Execute("divide  a 10  b 5  at 02:00  every 24h");
                 //You can use different argument styles and combine them
-                //interpreter.Execute("divide a: 10  b: 5  at 02:00  every 24h");
-                //interpreter.Execute("divide -a 10  -b 5  -at 02:00  every \"24h\"");
+                //gin.Execute("divide a: 10  b: 5  at 02:00  every 24h");
+                //gin.Execute("divide -a 10  -b 5  -at 02:00  every \"24h\"");
                 
-                //Or you can launch it manualy:
-                /*
-                interpreter.Execute( 
-                    cmd: new DivideCommand
-                    {
-                        Divider = 100,
-                        Dividend = 2
-                    }, 
-                    interval: TimeSpan.FromSeconds(10),
-                    count:      10);
-                */
-
-                //Will be executed in this thread:
+                //Will be executed at this thread:
                 gin.Execute("writeHello");
                 
                 gin.WaitForFinsh();

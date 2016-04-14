@@ -44,20 +44,18 @@ namespace TheGin
         {
             this.ThrowIfKilled();
             var firstTime = DateTime.Now;
-            if (instruction.ScheduleProperties.At.HasValue)
+            if (instruction.ScheduleSettings.At.HasValue)
             {
-                firstTime = instruction.ScheduleProperties.At.Value;
+                firstTime = instruction.ScheduleSettings.At.Value;
                 if (firstTime < DateTime.Now)
                     firstTime = firstTime.AddDays(1);
             }
-            var plan = new TaskPlan
-            {
+            var plan = new TaskPlan {
                 Instruction = instruction,
                 PlannedTime = firstTime
             };
 
-            lock (_locker)
-            {
+            lock (_locker) {
                 _tasksDone.Reset();
                 _plans.Add(plan);
             }
@@ -71,7 +69,7 @@ namespace TheGin
 
         void ThrowIfKilled() {
             if (IsKilled)
-                throw new InvalidOperationException("Вы не можете выполнить операцию, так как планировщик уже убит(IsKilled = true)");
+                throw new InvalidOperationException("Operation cannot be performed because scheduler is already killed (IsKilled = true)");
         }
 
         void Timer_Elapsed(object sender, ElapsedEventArgs e) {
@@ -87,22 +85,22 @@ namespace TheGin
                 if (IsKilled)
                     break;
 
-                var exemplar = plan.Instruction.ConfiguredCommand;
+                var exemplar = plan.Instruction.Factory.GetReadyToGoInstance();
 
                 _log.WriteMessage("Regular task \""
-                    + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name)
+                    + ParseTools.GetCommandName(exemplar.GetType())
                     + "\". Executed: "+ (plan.ExecutedCount+1)
-                    + (plan.Instruction.ScheduleProperties.Count.HasValue ? (" of " + plan.Instruction.ScheduleProperties.Count.Value) : "") + ". "
-                    + (plan.Instruction.ScheduleProperties.Every.HasValue ? ("Interval: " + (plan.Instruction.ScheduleProperties.Every.Value)) : ""));
+                    + (plan.Instruction.ScheduleSettings.Count.HasValue ? (" of " + plan.Instruction.ScheduleSettings.Count.Value) : "") + ". "
+                    + (plan.Instruction.ScheduleSettings.Every.HasValue ? ("Interval: " + (plan.Instruction.ScheduleSettings.Every.Value)) : ""));
 
-                if (plan.Instruction.ScheduleProperties.Every.HasValue)
-                    plan.PlannedTime += plan.Instruction.ScheduleProperties.Every.Value;
+                if (plan.Instruction.ScheduleSettings.Every.HasValue)
+                    plan.PlannedTime += plan.Instruction.ScheduleSettings.Every.Value;
                
                 this._executor.Run(exemplar);
                 plan.ExecutedCount++;
 
-                if (plan.Instruction.ScheduleProperties.Count.HasValue 
-                    && plan.ExecutedCount >= plan.Instruction.ScheduleProperties.Count)
+                if (plan.Instruction.ScheduleSettings.Count.HasValue
+                    && plan.ExecutedCount >= plan.Instruction.ScheduleSettings.Count)
                 {
                     bool hasOtherTasks = false;
                     lock (_locker)
@@ -110,7 +108,7 @@ namespace TheGin
                         _plans.Remove(plan);
                         hasOtherTasks = _plans.Any();
                     }
-                    _log.WriteMessage("Regular task \"" + ParseTools.NormalizeCommandTypeName(exemplar.GetType().Name + "\" were finished."));
+                    _log.WriteMessage("Regular task \"" + ParseTools.GetCommandName(exemplar.GetType()) + "\" were finished.");
                     if (!hasOtherTasks)
                         _tasksDone.Set();
                 }

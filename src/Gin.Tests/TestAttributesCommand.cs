@@ -16,7 +16,7 @@ namespace TheGin.Tests
         [CommandArgument("str","someStringDescription", Optional = false)]
         public string StringProperty { get; set; }
 
-        [FlagArgument("flag","someFlagDescription")]
+        [CommandArgument("flag", "someFlagDescription")]
         public bool BoolProperty { get; set; }
         public override void Run()
         {

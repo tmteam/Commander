@@ -35,58 +35,10 @@ namespace TheGin
         public void Execute(string[] args) {
             Execute(args.ToList());
         }
-        void Execute(List<string> args)
-        {
-            LocalTaskIsDone.Reset();
-            Log.WriteMessage(">> " + string.Concat(args.Select(a => a + " ")));
-            
-            try {
-                var instruction = Interpreter.Create(args);
-
-
-           
-            } catch (UnknownCommandNameException ex) {
-                Log.WriteError("Command " + ex.CommandName + " not found");
-            }
-            catch (UnknownArgumentsException ex) {
-                if(ex.ArgumentNames.Length>1)
-                    Log.WriteError("Unknown arguments: \" " + string.Concat(ex.ArgumentNames.Select(a => a + " "))+"\"");
-                else
-                    Log.WriteError("Unknown argument: \"" + ex.ArgumentNames.FirstOrDefault() + "\"");
-            }
-            catch (MissedArgumentsException ex) {
-                if (ex.ArgumentNames.Length> 1) 
-                    Log.WriteError("Neccessary arguments were missed: \" " + string.Concat(ex.ArgumentNames.Select(a=>a + " "))+"\"");
-                else
-                    Log.WriteError("Neccessary argument \"" + ex.ArgumentNames.FirstOrDefault() + "\" has missed");
-            }
-            catch (InvalidArgumentException ex) {
-                Log.WriteError(ex.Message);
-            }
-            catch (ArgumentException ex){
-                Log.WriteError("IncorrectCommand ");
-            }
-            catch (Exception ex) {
-                Log.WriteError("Exception: \r\n" + ex.ToString());
-            }
-            LocalTaskIsDone.Set();
-        }
-        void Execute(Instruction instruction)
-        {
-            if (!instruction.ScheduleProperties.At.HasValue
-                    && instruction.ScheduleProperties.Count.HasValue
-                    && !instruction.ScheduleProperties.Every.HasValue)
-                Executor.Run(new RunInCycleWrapper(instruction.ConfiguredCommand, instruction.ScheduleProperties.Count.Value, Executor));
-            else if (!instruction.ScheduleProperties.IsEmpty) {
-                Scheduler.Add(instruction);
-            }
-            else
-                Executor.Run(instruction.ConfiguredCommand);
-        }
-        public void Execute(ICommand cmd, CommandRunProperties scheduleProperties) {
+        public void Execute(ICommand cmd, CommandScheduleSettings scheduleSettings) {
             Execute( new Instruction{
-                      ConfiguredCommand     = cmd,
-                      ScheduleProperties    = scheduleProperties
+                      Factory           = new CommandSingletoneFactory(cmd),
+                      ScheduleSettings  = scheduleSettings
                  });
         }
 
@@ -110,6 +62,60 @@ namespace TheGin
             msec = Math.Max(msec - (int)sw.ElapsedMilliseconds, 0);
             return this.Scheduler.WaitForFinish(msec);
         }
-        
+        void Execute(List<string> args)
+        {
+            LocalTaskIsDone.Reset();
+            Log.WriteMessage(">> " + string.Concat(args.Select(a => a + " ")));
+
+            try
+            {
+                var instruction = Interpreter.Create(args);
+                Execute(instruction);
+            }
+            catch (UnknownCommandNameException ex) {
+                Log.WriteError("Command " + ex.CommandName + " not found");
+            }
+            catch (UnknownArgumentsException ex) {
+                if (ex.ArgumentNames.Length > 1)
+                    Log.WriteError("Unknown arguments: \" " + string.Concat(ex.ArgumentNames.Select(a => a + " ")) + "\"");
+                else
+                    Log.WriteError("Unknown argument: \"" + ex.ArgumentNames.FirstOrDefault() + "\"");
+            }
+            catch (MissedArgumentsException ex) {
+                if (ex.ArgumentNames.Length > 1)
+                    Log.WriteError("Neccessary arguments were missed: \" " + string.Concat(ex.ArgumentNames.Select(a => a + " ")) + "\"");
+                else
+                    Log.WriteError("Neccessary argument \"" + ex.ArgumentNames.FirstOrDefault() + "\" has missed");
+            }
+            catch (InvalidArgumentException ex) {
+                Log.WriteError(ex.Message);
+            }
+            catch (ArgumentException ex) {
+                Log.WriteError("IncorrectCommand ");
+            }
+            catch (Exception ex) {
+                Log.WriteError("Exception: \r\n" + ex.ToString());
+            }
+            LocalTaskIsDone.Set();
+        }
+        void Execute(Instruction instruction)
+        {
+            if (!instruction.ScheduleSettings.At.HasValue
+                    && instruction.ScheduleSettings.Count.HasValue
+                    && !instruction.ScheduleSettings.Every.HasValue)
+            {
+                Executor.Run(
+                    new RunInCycleWrapper(
+                        factory: instruction.Factory, 
+                        count: instruction.ScheduleSettings.Count.Value, 
+                        executor: Executor));
+            }
+            else if (!instruction.ScheduleSettings.IsEmpty)
+            {
+                Scheduler.Add(instruction);
+            }
+            else
+                Executor.Run(instruction.Factory.GetReadyToGoInstance());
+        }
     }
 }

@@ -9,10 +9,10 @@ namespace TheGin
 {
     public class TypeScanner : ICommandLibrary
     {
-        Dictionary<string, CommandDescription> commands 
-            = new Dictionary<string, CommandDescription>();
+        Dictionary<string, CommandSketch> commands 
+            = new Dictionary<string, CommandSketch>();
 
-        public CommandDescription GetOrNull(string name)
+        public CommandSketch GetOrNull(string name)
         {
             name = name.ToLower();
             if (this.commands.ContainsKey(name))
@@ -26,16 +26,15 @@ namespace TheGin
         {
             this.Registrate(typeof(T));
         }
-
        
         public void Registrate(ICommand exemplar)
         {
-            CommandDescription description = new CommandDescription {
-                Arguments = ReflectionTools.GetArgumentsDescription(exemplar.GetType()),
-                Attribute = ReflectionTools.GetCommandAttributeOrThrow(exemplar.GetType()),
-                Exemplar  = exemplar
-            };
-            this.Registrate(description);
+            var sketch = new CommandSketch(
+                attribute:      ReflectionTools.GetCommandAttributeOrThrow(exemplar.GetType()),
+                commandType:    exemplar.GetType(),
+                factory:        ()=>exemplar
+            );
+            this.Registrate(sketch);
         }
 
         public void Registrate(Type type)
@@ -48,18 +47,14 @@ namespace TheGin
         void Registrate(Type type, CommandAttribute attribute)
         {
             ReflectionTools.ThrowIfItIsNotValidCommand(type);
-            var description = new CommandDescription {
-                Attribute = attribute,
-                Arguments = ReflectionTools.GetArgumentsDescription(type),
-                Exemplar  = (ICommand) Activator.CreateInstance(type)
-            };
+            var description = new CommandSketch(attribute, type, () => (ICommand)Activator.CreateInstance(type));
             this.Registrate(description);
         }
 
-        void Registrate(CommandDescription description)
+        void Registrate(CommandSketch sketch)
         {
-            string key = ParseTools.NormalizeCommandTypeName(description.Exemplar.GetType().Name).ToLower();
-            this.commands.Add(key, description);
+            string key = ParseTools.GetCommandName(sketch.CommandType).ToLower();
+            this.commands.Add(key, sketch);
         }
 
         public void ScanAssembly(Assembly assembly)
@@ -74,7 +69,7 @@ namespace TheGin
         }
 
         // Properties
-        public IEnumerable<CommandDescription> Descriptions {
+        public IEnumerable<CommandSketch> Sketches {
             get { return this.commands.Values; }
         }
     }

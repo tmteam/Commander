@@ -74,13 +74,6 @@ namespace TheGin.Tests
             }
         }
         [TestMethod]
-        public void TestNormalizeCommandTypeName()
-        {
-            Assert.AreEqual("cmd", ParseTools.NormalizeCommandTypeName("cmd"));
-            Assert.AreEqual("SomeThing", ParseTools.NormalizeCommandTypeName("SomeThing"));
-            Assert.AreEqual("Divide", ParseTools.NormalizeCommandTypeName("DivideCommand"));
-        }
-        [TestMethod]
         public void TestNormalizeCommandArgName()
         {
             Assert.AreEqual("arg1", ParseTools.NormalizeCommandArgName("ArG1"));

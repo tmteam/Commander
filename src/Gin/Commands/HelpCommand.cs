@@ -9,26 +9,26 @@ namespace TheGin
     [Command("Show allowed commands help")]
     public class HelpCommand : CommandBase
     {
-        public readonly IEnumerable<CommandDescription> Commands;
+        public readonly IEnumerable<CommandSketch> Commands;
 
-        public HelpCommand(IEnumerable<CommandDescription> commands)
+        public HelpCommand(IEnumerable<CommandSketch> commands)
         {
             this.Commands = commands;
         }
 
         private void fillArgDescription(StringBuilder msg, ArgumentDescription arg)
         {
-            msg.AppendLine("    -" + arg.Description.ShortAlias + ",  (" + arg.Property.PropertyType.Name + ")   " + arg.Description.Description);
+            msg.AppendLine("    -" + arg.Attribute.ShortAlias + ",  (" + arg.Property.PropertyType.Name + ")   " + arg.Attribute.Description);
         }
 
         public override void Run()
         {
-            StringBuilder msg = new StringBuilder("Threre are " + this.Commands.Count<CommandDescription>() + " commands: \r\n");
-            foreach (CommandDescription description in this.Commands)
+            StringBuilder msg = new StringBuilder("Threre are " + this.Commands.Count<CommandSketch>() + " commands: \r\n");
+            foreach (CommandSketch description in this.Commands)
             {
-                msg.AppendLine("[" + ParseTools.NormalizeCommandTypeName(description.Exemplar.GetType().Name) + "] - " + description.Attribute.Description);
+                msg.AppendLine("[" + ParseTools.GetCommandName(description.CommandType) + "] - " + description.Attribute.Description);
                 ArgumentDescription[] descriptionArray = (from a in description.Arguments
-                                                          where !a.Description.Optional
+                                                          where !a.Attribute.Optional
                                                           select a).ToArray<ArgumentDescription>();
                 if (descriptionArray.Length > 0)
                 {
@@ -39,7 +39,7 @@ namespace TheGin
                     }
                 }
                 ArgumentDescription[] descriptionArray2 = (from a in description.Arguments
-                                                           where a.Description.Optional
+                                                           where a.Attribute.Optional
                                                            select a).ToArray<ArgumentDescription>();
                 if (descriptionArray2.Length > 0)
                 {

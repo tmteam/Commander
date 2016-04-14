@@ -7,7 +7,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Example
+namespace TheGin.Example
 {
     [RunInstaller(true)]
     public class WindowsServiceInstaller : Installer
