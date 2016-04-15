@@ -15,6 +15,9 @@ namespace TheGin
             this._configuration     = configuration?? new Dictionary<PropertyInfo, object>();
             this._instanceLocator   = instanceLocator;
         }
+        /// <summary>
+        /// Returns configurated and ready for execution exemplar of a command
+        /// </summary>
         public ICommand GetReadyToGoInstance()
         {
             var ans = _instanceLocator();

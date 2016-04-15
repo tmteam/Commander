@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Executes command in try-catch and writes its results to a specified log
+    /// </summary>
     public class Executor : IExecutor
     {
         public Executor() {
@@ -15,7 +18,7 @@ namespace TheGin
             this.Log = log ?? new ConsoleLog();
         }
         public void Run(ICommand cmd){
-            Log.AttachTo(cmd);
+            Log.TryAttachTo(cmd);
             try {
                 cmd.Run();
                 var func = cmd as IFuncCommand;

@@ -18,7 +18,7 @@ namespace TheGin
         }
 
         public string Description { get; set; }
-        public bool Optional { get; set; }
+        public bool Optional { get; set; } 
         public string ShortAlias { get; set; }
     }
 

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Necessary argument is missing
+    /// </summary>
     public class MissedArgumentsException : Exception
     {
         public readonly string[] ArgumentNames;

@@ -5,9 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TheGin {
+
+    /// <summary>
+    /// Something that can writes to the log
+    /// </summary>
     public interface ILoggable
     {
-        // Properties
         ILog Log { get; set; }
     }
 }

@@ -8,18 +8,34 @@ namespace TheGin
 {
     public static class Tools
     {
-        public static void AttachTo(this ILog log,ICommand cmd)
+        /// <summary>
+        /// Tries to attach log to an object 
+        /// </summary>
+        public static bool TryAttachTo(this ILog log,object obj)
         {
-            var loggable = cmd as ILoggable;
+            var loggable = obj as ILoggable;
             if (loggable != null)
                 loggable.Log = log;
+            return loggable != null;
         }
+        /// <summary>
+        /// Adds the help command to the Gin's library
+        /// </summary>
+        /// <param name="gin"></param>
         public static void AddHelp(this Gin gin) {
             gin.Library.Registrate(new HelpCommand(gin.Library.Sketches));
         }
+        /// <summary>
+        /// Adds the exit command to the Gin's library
+        /// </summary>
+        /// <param name="gin"></param>
         public static void AddExit(this Gin gin) {
             gin.Library.Registrate(new ExitCommand(gin));
         }
+        /// <summary>
+        /// Runs command input loop.
+        /// </summary>
+        /// <param name="gin"></param>
         public static void RunInputLoop(this Gin gin)
         {
             while (!gin.NeedToExit) {

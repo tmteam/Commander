@@ -75,7 +75,7 @@
     <Compile Include="Scheduler.cs" />
     <Compile Include="SearchCommandBehaviour.cs" />
     <Compile Include="Tools.cs" />
-    <Compile Include="TypeScanner.cs" />
+    <Compile Include="CommandScanner.cs" />
     <Compile Include="Exceptions\UnknownArgumentsException.cs" />
     <Compile Include="Exceptions\UnknownCommandNameException.cs" />
   </ItemGroup>

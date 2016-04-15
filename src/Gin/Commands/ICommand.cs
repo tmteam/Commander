@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Something that can be executed
+    /// </summary>
     public interface ICommand
     {
         void Run();
     }
-
-    
 }

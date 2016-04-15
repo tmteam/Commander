@@ -12,7 +12,7 @@ namespace TheGin.ComplexExample
     {
         static void Main(string[] args) {
 
-            var scanner = new TypeScanner();
+            var scanner = new CommandScanner();
             //scan or append command types manualy here:
             //scanner.Registrate<myCommandType>();
             //or command singletone Instances
@@ -36,14 +36,14 @@ namespace TheGin.ComplexExample
             
             //to switch log at runtime:
             //gin.Log = new ConsoleLog();
-            if (!Environment.UserInteractive) //if we are launched as a service
+            if (!Environment.UserInteractive) //if it was launched as a service
             {
                 gin.Log.WriteMessage("Executed as a service");
-                //Do not to forget setup your service name at WindowsServiceInstaller.cs
+                //Do not forget to setup your service name at WindowsServiceInstaller.cs
  
                 //and do whatever you want here as a service...
 
-                //Will be executed in scheduler's timer thread:
+                //Will be executed at scheduler timer thread:
                 gin.Execute("divide  a 10  b 5  at 02:00  every 24h");
                 //You can use different argument styles and combine them
                 //gin.Execute("divide a: 10  b: 5  at 02:00  every 24h");
@@ -53,12 +53,12 @@ namespace TheGin.ComplexExample
                 gin.Execute("writeHello");
                 
                 gin.WaitForFinsh();
-            } else if (args.Length > 0) { // when it's executed with parameters:
+            } else if (args.Length > 0) { // if it was launched with parameters:
                 gin.Execute(args);
                 //close the application after operation will be done
             } else { // when it's executed as a console application:
-                gin.AddHelp();// add \"help\" command
-                gin.AddExit();// add \"exit\" command
+                gin.AddHelp();// adds the \"help\" command
+                gin.AddExit();// adds the \"exit\" command
 
                 gin.RunInputLoop();
                 

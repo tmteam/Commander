@@ -8,10 +8,7 @@ namespace TheGin
 {
     public class UnknownCommandNameException : Exception
     {
-        // Fields
         public readonly string CommandName;
-
-        // Methods
         public UnknownCommandNameException(string commandName)
         {
             this.CommandName = commandName;

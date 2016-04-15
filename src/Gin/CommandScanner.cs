@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class TypeScanner : ICommandLibrary
+    /// <summary>
+    /// Command sketch library implementation with auto-assembly-scan ability
+    /// </summary>
+    public class CommandScanner : ICommandLibrary
     {
         Dictionary<string, CommandSketch> commands 
             = new Dictionary<string, CommandSketch>();
@@ -58,7 +61,10 @@ namespace TheGin
             string key = ParseTools.GetCommandName(sketch.CommandType).ToLower();
             this.commands.Add(key, sketch);
         }
-
+        /// <summary>
+        /// Looks up specified assembly for suitable command types and registrates all of them
+        /// </summary>
+        /// <param name="assembly"></param>
         public void ScanAssembly(Assembly assembly)
         {
             foreach (var type  in assembly.ExportedTypes.Where(t=>typeof(ICommand).IsAssignableFrom(t)))
@@ -70,6 +76,7 @@ namespace TheGin
                 }
             }
         }
+
 
         public IEnumerable<CommandSketch> Sketches {
             get { return this.commands.Values; }

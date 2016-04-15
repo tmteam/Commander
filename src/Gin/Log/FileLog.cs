@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// The log which writes to a specified file 
+    /// </summary>
     public class FileLog : ILog
     {
         string filePath;

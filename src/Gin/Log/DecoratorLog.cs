@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Allows to use multiple logs at the same time
+    /// </summary>
     public class DecoratorLog : ILog
     {
         private readonly ILog[] logs;

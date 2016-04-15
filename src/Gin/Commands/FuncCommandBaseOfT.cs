@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Base for commands which return some value
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
     public abstract class FuncCommandBase<TResult> : CommandBase, IFuncCommand<TResult>, IFuncCommand, ICommand
     {
         public override void Run()

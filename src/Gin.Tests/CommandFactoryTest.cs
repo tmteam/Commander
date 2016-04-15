@@ -11,9 +11,9 @@ namespace TheGin.Tests
     [TestClass]
     public class CommandFactoryTest
     {
-        TypeScanner CreateFactory()
+        CommandScanner CreateFactory()
         {
-            var factory = new TypeScanner();
+            var factory = new CommandScanner();
             factory.Registrate(typeof(TestAttributesCommand));
             return factory;
         }

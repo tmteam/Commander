@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Laucnhes specified command in a cycle
+    /// </summary>
     public class RunInCycleWrapper: CommandBase, ICommand
     {
         readonly CommandLocator locator;

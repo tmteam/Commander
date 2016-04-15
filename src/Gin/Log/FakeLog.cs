@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// The Log which is doing nothing.
+    /// </summary>
     public class FakeLog : ILog
     {
         public void WriteError(string str) { }

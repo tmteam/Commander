@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Command argument value is invalid
+    /// </summary>
     public class InvalidArgumentException:Exception
     {
         public readonly Type ExpectedType;

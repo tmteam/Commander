@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
+    /// <summary>
+    /// The log which writes to the console
+    /// </summary>
     public class ConsoleLog : ILog
     {
         public void WriteError(string str)

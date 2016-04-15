@@ -8,6 +8,9 @@ using System.Timers;
 
 namespace TheGin
 {
+    /// <summary>
+    /// Launches the commands according to specified instructions
+    /// </summary>
     public class Scheduler: ILoggable
     {
         readonly List<TaskPlan> _plans;
@@ -15,6 +18,7 @@ namespace TheGin
         readonly object _locker;
         readonly ManualResetEvent _tasksDone;
         readonly IExecutor _executor;
+        
         public Scheduler(IExecutor executor, ILog log = null,  int resolutionInMsec = 1000)
         {
             this.IsKilled = false;
@@ -30,17 +34,26 @@ namespace TheGin
             this._timer.Start();
         }
         public ILog Log { get; set; }
-        
         public bool IsKilled { get; private set; }
-
+        /// <summary>
+        /// Waits for the moment when all tasks will be finished
+        /// </summary>
         public void WaitForFinish()
         {
             this._tasksDone.WaitOne();
         }
+        /// <summary>
+        /// Waits for the moment when all tasks will be finished, but no more that specified time
+        /// </summary>
+        /// <param name="maxAwaitTimeInMsec">Max time of awaiting</param>
+        /// <returns>True, if tasks were finished. False otherwise.</returns>
         public bool WaitForFinish(int msec = 0)
         {
            return _tasksDone.WaitOne(msec);
         }
+        /// <summary>
+        /// Adds new task to the schedule
+        /// </summary>
         public void AddTask(Instruction instruction)
         {
             this.ThrowIfKilled();
@@ -61,7 +74,9 @@ namespace TheGin
                 _plans.Add(plan);
             }
         }
-
+        /// <summary>
+        /// Stops the scheduler. Cancel all planned tasks
+        /// </summary>
         public void Kill() {
             this.ThrowIfKilled();
             this._timer.Stop();
