@@ -9,16 +9,15 @@ namespace TheGin
 {
     public class CommandLocator 
     {
-        readonly Func<ICommand> _factory;
+        readonly Func<ICommand> _instanceLocator;
         readonly Dictionary<PropertyInfo, object> _configuration;
-        public CommandLocator(Func<ICommand> factory, Dictionary<PropertyInfo, object> configuration =null)
-        {
-            this._configuration = configuration?? new Dictionary<PropertyInfo, object>();
-            this._factory = factory;
+        public CommandLocator(Func<ICommand> instanceLocator, Dictionary<PropertyInfo, object> configuration =null) {
+            this._configuration     = configuration?? new Dictionary<PropertyInfo, object>();
+            this._instanceLocator   = instanceLocator;
         }
         public ICommand GetReadyToGoInstance()
         {
-            var ans = _factory();
+            var ans = _instanceLocator();
             ReflectionTools.Configurate(ans, _configuration);
             return ans;
         }

@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gin", "Gin\Gin.csproj", "{7646A731-3FE9-4EC0-9406-B7F21D282710}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gin.Example", "Gin.Example\Gin.Example.csproj", "{CFBE0496-7667-4104-98BA-DED7CEABC336}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gin.ComplexExample", "Gin.Example\Gin.ComplexExample.csproj", "{CFBE0496-7667-4104-98BA-DED7CEABC336}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gin.Tests", "Gin.Tests\Gin.Tests.csproj", "{2F45B0A7-0249-4FEB-AB38-755573394BDD}"
 EndProject

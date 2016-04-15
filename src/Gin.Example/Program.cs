@@ -13,19 +13,24 @@ namespace TheGin.ComplexExample
         static void Main(string[] args) {
 
             var scanner = new TypeScanner();
-            //scan only executing assembly:
-            scanner.ScanAssembly(Assembly.GetEntryAssembly());
-            //scan or append command manualy here...
+            //scan or append command types manualy here:
             //scanner.Registrate<myCommandType>();
+            //or command singletone Instances
+            //scanner.Registrate(new myCommand(myCommandSettings))
+            
+            //scan only executing assembly:            
+            scanner.ScanAssembly(Assembly.GetEntryAssembly());
 
             var gin = new Gin(
                         library:  scanner,               //Specify your own command library
                         executor: new Executor(),        //(optional) specify your own command executor (do not forget to catch exceptions and attach the log to commands in it)
-                        log:      new DecoratorLog(      //(optional) combine different logs
+                        log:      new DecoratorLog       //(optional) combine different logs
+                                  (
                                     new ConsoleLog(), 
                                     new FileLog(maxLogLength: 10000, 
                                                 relativeFileName: "TheLog.txt",
-                                                writeFilter: FileLogFilter.All)));
+                                                writeFilter: FileLogFilter.All)
+                                                ));
            
             gin.Log.WriteMessage("Gin lauched at "+ DateTime.Now);
             
@@ -34,7 +39,9 @@ namespace TheGin.ComplexExample
             if (!Environment.UserInteractive) //if we are launched as a service
             {
                 gin.Log.WriteMessage("Executed as a service");
-                //Do whatever you want here as a service...
+                //Do not to forget setup your service name at WindowsServiceInstaller.cs
+ 
+                //and do whatever you want here as a service...
 
                 //Will be executed in scheduler's timer thread:
                 gin.Execute("divide  a 10  b 5  at 02:00  every 24h");

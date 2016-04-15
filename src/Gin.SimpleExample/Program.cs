@@ -21,7 +21,6 @@ namespace TheGin.SimpleExample
              */
             //Launches help command
             gin.Execute("help");
-
             //Launches console input loop
             gin.RunInputLoop();
             

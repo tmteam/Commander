@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace TheGin.ComplexExample
 {
     [Command("Generate tree")]
-    public class ReturnTreeCommand: CommandBase<Node>
+    public class ReturnTreeCommand: FuncCommandBase<Node>
     {
         protected override Node RunAndReturn()
         {

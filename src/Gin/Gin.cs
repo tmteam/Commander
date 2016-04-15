@@ -61,6 +61,7 @@ namespace TheGin
             
         }
         
+
         public ILog Log {
             get { return _log; }
             set { 
@@ -71,35 +72,18 @@ namespace TheGin
                 _executor.Log = value;
             }
         }
+       
         public ICommandLibrary Library { get; private set; }
         
         public bool NeedToExit { get; set; }
-
-        public void Execute(string inputString){
-            Execute(ParseTools.SmartSplit(inputString));
-        }
-
-        public void Execute(string[] args) {
-            Execute(args.ToList());
-        }
-        public void Execute(ICommand cmd, CommandScheduleSettings scheduleSettings) {
-            Execute( new Instruction{
-                      Locator           = new CommandLocator(()=>cmd, new Dictionary<PropertyInfo,object>()),
-                      ScheduleSettings  = scheduleSettings
-                 });
-        }
-
-        public void Execute(ICommand cmd) {
-            _executor.Run(cmd);
-        }
         
+
         public void WaitForFinsh() {
             _localTaskIsDone.WaitOne();
             this.Scheduler.WaitForFinish();
         }
         
         public bool WaitForFinsh(int msec = 0) {
-            
             var sw = new Stopwatch();
             sw.Start();
             var ans = _localTaskIsDone.WaitOne(msec);
@@ -109,7 +93,43 @@ namespace TheGin
             msec = Math.Max(msec - (int)sw.ElapsedMilliseconds, 0);
             return this.Scheduler.WaitForFinish(msec);
         }
-        void Execute(List<string> args)
+
+        #region execute overload
+        
+        public void Execute(Type commandType, CommandScheduleSettings scheduleSettings = null) {
+            ReflectionTools.ThrowIfItIsNotValidCommand(commandType);
+            Execute(() => (ICommand)Activator.CreateInstance(commandType), scheduleSettings);
+        }
+        public void Execute<T>(CommandScheduleSettings scheduleSettings = null) where T : ICommand, new() {
+            Execute(() => new T(), scheduleSettings);
+        }
+        public void Execute(string inputString){
+            PrivateExecute(ParseTools.SmartSplit(inputString));
+        }
+        public void Execute(Func<ICommand> instanceLocator, CommandScheduleSettings scheduleSettings = null) {
+            PrivateExecute(new Instruction {
+                Locator = new CommandLocator(instanceLocator),
+                ScheduleSettings = scheduleSettings ?? new CommandScheduleSettings {  Count = 1 }
+            });
+        }
+        public void Execute(string[] args) {
+            PrivateExecute(args.ToList());
+        }
+        
+        public void Execute(ICommand cmd) {
+            Execute(cmd, new CommandScheduleSettings { Count = 1 });
+        }
+
+        public void Execute(ICommand cmd, CommandScheduleSettings scheduleSettings) {
+            PrivateExecute( new Instruction{
+                      Locator           = new CommandLocator(()=>cmd, new Dictionary<PropertyInfo,object>()),
+                      ScheduleSettings  = scheduleSettings
+                 });
+        }
+
+        #endregion
+
+        void PrivateExecute(List<string> args)
         {
             _localTaskIsDone.Reset();
             Log.WriteMessage(">> " + string.Concat(args.Select(a => a + " ")));
@@ -117,35 +137,41 @@ namespace TheGin
             try
             {
                 var instruction = Interpreter.Create(args);
-                Execute(instruction);
+                PrivateExecute(instruction);
             }
-            catch (UnknownCommandNameException ex) {
+            catch (UnknownCommandNameException ex)
+            {
                 Log.WriteError("Command " + ex.CommandName + " not found");
             }
-            catch (UnknownArgumentsException ex) {
+            catch (UnknownArgumentsException ex)
+            {
                 if (ex.ArgumentNames.Length > 1)
                     Log.WriteError("Unknown arguments: \" " + string.Concat(ex.ArgumentNames.Select(a => a + " ")) + "\"");
                 else
                     Log.WriteError("Unknown argument: \"" + ex.ArgumentNames.FirstOrDefault() + "\"");
             }
-            catch (MissedArgumentsException ex) {
+            catch (MissedArgumentsException ex)
+            {
                 if (ex.ArgumentNames.Length > 1)
                     Log.WriteError("Neccessary arguments were missed: \" " + string.Concat(ex.ArgumentNames.Select(a => a + " ")) + "\"");
                 else
                     Log.WriteError("Neccessary argument \"" + ex.ArgumentNames.FirstOrDefault() + "\" has missed");
             }
-            catch (InvalidArgumentException ex) {
+            catch (InvalidArgumentException ex)
+            {
                 Log.WriteError(ex.Message);
             }
-            catch (ArgumentException ex) {
+            catch (ArgumentException ex)
+            {
                 Log.WriteError("IncorrectCommand ");
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Log.WriteError("Exception: \r\n" + ex.ToString());
             }
             _localTaskIsDone.Set();
         }
-        void Execute(Instruction instruction)
+        void PrivateExecute(Instruction instruction)
         {
             if (!instruction.ScheduleSettings.At.HasValue
                     && instruction.ScheduleSettings.Count.HasValue
@@ -153,8 +179,8 @@ namespace TheGin
             {
                 _executor.Run(
                     new RunInCycleWrapper(
-                        locator: instruction.Locator, 
-                        iterationsCount: instruction.ScheduleSettings.Count.Value, 
+                        locator: instruction.Locator,
+                        iterationsCount: instruction.ScheduleSettings.Count.Value,
                         executor: _executor));
             }
             else if (!instruction.ScheduleSettings.IsEmpty)
