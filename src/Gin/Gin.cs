@@ -9,25 +9,45 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class Gin
+    public class Gin: ILoggable
     {
+        ILog _log;
+        readonly ManualResetEvent _localTaskIsDone;
+        readonly IExecutor _executor;
         public readonly Interpreter Interpreter;
         public readonly Scheduler Scheduler;
-        public ILog Log { get; set; }
-        public ICommandLibrary Library { get; set; }
-        
-        public bool ExitFlag { get; set; }
+        /*
+        public Gin(bool useHelpCommand= true,
+                   bool useExitCommand = true,
+                   ScanBehaviour scanBehaviour = ScanBehaviour.ScanAllSolutionAssembly)
+        {
+            throw new NotImplementedException();
+        }*/
 
-        ManualResetEvent LocalTaskIsDone = new ManualResetEvent(true);
-        Executor Executor;
-        public Gin(ICommandLibrary library, ILog log = null) {
+        public Gin(ICommandLibrary library, ILog log = null, IExecutor executor = null) {
+            this._localTaskIsDone =  new ManualResetEvent(true);
             this.Library   = library;
             this.Log       = log?? new ConsoleLog();
-            this.Executor  = new Executor(this.Log);
-            this.Scheduler     = new Scheduler(this.Executor, this.Log);
+            this._executor     = executor?? new Executor(this.Log);
+            this._executor.Log = this.Log;
+            this.Scheduler     = new Scheduler(this._executor, this.Log);
             this.Interpreter   = new Interpreter(library);
         }
         
+        public ILog Log {
+            get { return _log; }
+            set { 
+                if (value == null)
+                    throw new ArgumentNullException();
+                _log = value;
+                Scheduler.Log = value;
+                _executor.Log = value;
+            }
+        }
+        public ICommandLibrary Library { get; private set; }
+        
+        public bool NeedToExit { get; set; }
+
         public void Execute(string inputString){
             Execute(ParseTools.SmartSplit(inputString));
         }
@@ -37,17 +57,17 @@ namespace TheGin
         }
         public void Execute(ICommand cmd, CommandScheduleSettings scheduleSettings) {
             Execute( new Instruction{
-                      Factory           = new CommandFactory(()=>cmd, new Dictionary<PropertyInfo,object>()),
+                      Locator           = new CommandLocator(()=>cmd, new Dictionary<PropertyInfo,object>()),
                       ScheduleSettings  = scheduleSettings
                  });
         }
 
         public void Execute(ICommand cmd) {
-            Executor.Run(cmd);
+            _executor.Run(cmd);
         }
         
         public void WaitForFinsh() {
-            LocalTaskIsDone.WaitOne();
+            _localTaskIsDone.WaitOne();
             this.Scheduler.WaitForFinish();
         }
         
@@ -55,7 +75,7 @@ namespace TheGin
             
             var sw = new Stopwatch();
             sw.Start();
-            var ans = LocalTaskIsDone.WaitOne(msec);
+            var ans = _localTaskIsDone.WaitOne(msec);
             if (!ans)
                 return false;
             sw.Stop();
@@ -64,7 +84,7 @@ namespace TheGin
         }
         void Execute(List<string> args)
         {
-            LocalTaskIsDone.Reset();
+            _localTaskIsDone.Reset();
             Log.WriteMessage(">> " + string.Concat(args.Select(a => a + " ")));
 
             try
@@ -96,7 +116,7 @@ namespace TheGin
             catch (Exception ex) {
                 Log.WriteError("Exception: \r\n" + ex.ToString());
             }
-            LocalTaskIsDone.Set();
+            _localTaskIsDone.Set();
         }
         void Execute(Instruction instruction)
         {
@@ -104,18 +124,18 @@ namespace TheGin
                     && instruction.ScheduleSettings.Count.HasValue
                     && !instruction.ScheduleSettings.Every.HasValue)
             {
-                Executor.Run(
+                _executor.Run(
                     new RunInCycleWrapper(
-                        factory: instruction.Factory, 
-                        count: instruction.ScheduleSettings.Count.Value, 
-                        executor: Executor));
+                        locator: instruction.Locator, 
+                        iterationsCount: instruction.ScheduleSettings.Count.Value, 
+                        executor: _executor));
             }
             else if (!instruction.ScheduleSettings.IsEmpty)
             {
-                Scheduler.Add(instruction);
+                Scheduler.AddTask(instruction);
             }
             else
-                Executor.Run(instruction.Factory.GetReadyToGoInstance());
+                _executor.Run(instruction.Locator.GetReadyToGoInstance());
         }
     }
 }

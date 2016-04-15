@@ -8,7 +8,6 @@ namespace TheGin
 {
     public interface IFuncCommand : ICommand
     {
-        // Properties
         object UntypedResult { get; }
     }
 }

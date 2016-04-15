@@ -8,21 +8,18 @@ using System.Timers;
 
 namespace TheGin
 {
-    public class Scheduler
+    public class Scheduler: ILoggable
     {
-        public bool IsKilled { get; private set; }
-
         readonly List<TaskPlan> _plans;
-        readonly ILog _log ;
         readonly System.Timers.Timer _timer;
         readonly object _locker;
         readonly ManualResetEvent _tasksDone;
-        readonly Executor _executor;
-        public Scheduler(Executor executor, ILog log = null,  int resolutionInMsec = 1000)
+        readonly IExecutor _executor;
+        public Scheduler(IExecutor executor, ILog log = null,  int resolutionInMsec = 1000)
         {
             this.IsKilled = false;
 
-            this._log = log ?? new ConsoleLog();
+            this.Log = log ?? new ConsoleLog();
             this._executor = executor;
             this._tasksDone = new ManualResetEvent(true);
             this._locker = new object();
@@ -32,6 +29,10 @@ namespace TheGin
             this._timer.Elapsed += new ElapsedEventHandler(this.Timer_Elapsed);
             this._timer.Start();
         }
+        public ILog Log { get; set; }
+        
+        public bool IsKilled { get; private set; }
+
         public void WaitForFinish()
         {
             this._tasksDone.WaitOne();
@@ -40,7 +41,7 @@ namespace TheGin
         {
            return _tasksDone.WaitOne(msec);
         }
-        public void Add(Instruction instruction)
+        public void AddTask(Instruction instruction)
         {
             this.ThrowIfKilled();
             var firstTime = DateTime.Now;
@@ -85,9 +86,9 @@ namespace TheGin
                 if (IsKilled)
                     break;
 
-                var exemplar = plan.Instruction.Factory.GetReadyToGoInstance();
+                var exemplar = plan.Instruction.Locator.GetReadyToGoInstance();
 
-                _log.WriteMessage("Regular task \""
+                Log.WriteMessage("Regular task \""
                     + ParseTools.GetCommandName(exemplar.GetType())
                     + "\". Executed: "+ (plan.ExecutedCount+1)
                     + (plan.Instruction.ScheduleSettings.Count.HasValue ? (" of " + plan.Instruction.ScheduleSettings.Count.Value) : "") + ". "
@@ -108,12 +109,20 @@ namespace TheGin
                         _plans.Remove(plan);
                         hasOtherTasks = _plans.Any();
                     }
-                    _log.WriteMessage("Regular task \"" + ParseTools.GetCommandName(exemplar.GetType()) + "\" were finished.");
+                    Log.WriteMessage("Regular task \"" + ParseTools.GetCommandName(exemplar.GetType()) + "\" were finished.");
                     if (!hasOtherTasks)
                         _tasksDone.Set();
                 }
             }
             
         }
+        
+        class TaskPlan
+        {
+            public Instruction Instruction;
+            public ulong ExecutedCount = 0;
+            public DateTime? PlannedTime;
+        }
+
     }
 }

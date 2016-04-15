@@ -20,21 +20,7 @@ namespace TheGin
         public virtual ILog Log { get; set; }
     }
 
-    public abstract class CommandBase<TResult> : CommandBase, ICommand<TResult>, IFuncCommand, ICommand
-    {
-
-    public override void Run()
-    {
-        this.TypedResult = this.RunAndReturn();
-    }
-
-    protected abstract TResult RunAndReturn();
-
-    // Properties
-    public TResult TypedResult { get; protected set; }
-
-    public object UntypedResult { get { return this.TypedResult; } }
-}
+    
 
 
 }

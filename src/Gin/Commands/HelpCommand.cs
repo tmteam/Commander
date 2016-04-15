@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TheGin
 {
     [Command("Show allowed commands help")]
-    public class HelpCommand : CommandBase
+    public class HelpCommand : CommandBase, ICommand
     {
         public readonly IEnumerable<CommandSketch> Commands;
 

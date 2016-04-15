@@ -7,6 +7,7 @@ namespace TheGin
         CommandSketch GetOrNull(string commandName);
         void Registrate(ICommand exemplar);
         void Registrate(Type cmdType);
+        void Deregistrate(string commandName);
         IEnumerable<CommandSketch> Sketches { get; } 
     }
 }

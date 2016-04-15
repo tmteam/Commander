@@ -9,6 +9,9 @@ namespace TheGin
     [AttributeUsage(AttributeTargets.Class)]
     public class CommandAttribute : Attribute
     {
+        public CommandAttribute() {
+            this.Description = "";
+        }
         public CommandAttribute(string description)
         {
             this.Description = description;

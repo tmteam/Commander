@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace TheGin.Example
 {
     [Command("a/b math operation")]
-    public class DivideCommand: CommandBase<double>
+    public class DivideCommand: FuncCommandBase<double>, IFuncCommand<double>, IFuncCommand, ICommand, ILoggable
     {
         [Setting("a", "Double, that is divided by divider (b) ")]
         public double Dividend { get; set; }

@@ -18,7 +18,7 @@ namespace TheGin
             Optional = true, 
             ShortAlias = "count",
             Description = "max execution count")]
-        public int? Count { get; set; }
+        public ulong? Count { get; set; }
         public bool IsEmpty {
             get { return !At.HasValue && !Every.HasValue; }
         }

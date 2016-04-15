@@ -6,22 +6,22 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class RunInCycleWrapper: CommandBase
+    public class RunInCycleWrapper: CommandBase, ICommand
     {
-        readonly CommandFactory factory;
-        readonly int count;
-        readonly Executor executor;
-        public RunInCycleWrapper(CommandFactory factory, int count, Executor executor)
+        readonly CommandLocator locator;
+        readonly ulong iterationsCount;
+        readonly IExecutor executor;
+        public RunInCycleWrapper(CommandLocator locator, ulong iterationsCount, IExecutor executor)
         {
-            this.factory = factory;
-            this.count = count;
+            this.locator = locator;
+            this.iterationsCount = iterationsCount;
             this.executor = executor;
         }
 
         public override void Run() {
-            for (int i = 0; i < count; i++) {
-                var cmd = factory.GetReadyToGoInstance();
-                Log.WriteMessage("\"" + ParseTools.GetCommandName(cmd.GetType()) + "\"'s iteration " + i + " of " + count);
+            for (ulong i = 0; i < iterationsCount; i++) {
+                var cmd = locator.GetReadyToGoInstance();
+                Log.WriteMessage("\"" + ParseTools.GetCommandName(cmd.GetType()) + "\"'s iteration " + i + " of " + iterationsCount);
                 executor.Run(cmd);
             }
             Log.WriteMessage("Cycle finished");

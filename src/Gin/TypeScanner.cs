@@ -32,13 +32,12 @@ namespace TheGin
             var sketch = new CommandSketch(
                 attribute:      ReflectionTools.GetCommandAttributeOrThrow(exemplar.GetType()),
                 commandType:    exemplar.GetType(),
-                factory:        ()=>exemplar
+                locator:        ()=>exemplar
             );
             this.Registrate(sketch);
         }
 
-        public void Registrate(Type type)
-        {
+        public void Registrate(Type type) {
             ReflectionTools.ThrowIfItIsNotValidCommand(type);
             var cmdAttribute = ReflectionTools.GetCommandAttributeOrThrow(type);
             this.Registrate(type, cmdAttribute);
@@ -47,8 +46,8 @@ namespace TheGin
         void Registrate(Type type, CommandAttribute attribute)
         {
             ReflectionTools.ThrowIfItIsNotValidCommand(type);
-            var description = new CommandSketch(attribute, type, () => (ICommand)Activator.CreateInstance(type));
-            this.Registrate(description);
+            var sketch = new CommandSketch(attribute, type, () => (ICommand)Activator.CreateInstance(type));
+            this.Registrate(sketch);
         }
 
         void Registrate(CommandSketch sketch)
@@ -72,5 +71,12 @@ namespace TheGin
         public IEnumerable<CommandSketch> Sketches {
             get { return this.commands.Values; }
         }
+
+
+        public void Deregistrate(string commandName) {
+            commandName = commandName.ToLower();
+            commands.Remove(commandName);
+        }
+        
     }
 }

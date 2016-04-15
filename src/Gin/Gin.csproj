@@ -42,11 +42,14 @@
     <Compile Include="ArgumentDescription.cs" />
     <Compile Include="Attributes\SettingAttribute.cs" />
     <Compile Include="Attributes\CommandAttribute.cs" />
-    <Compile Include="CommandFactory.cs" />
+    <Compile Include="CommandLocator.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="CommandSketch.cs" />
+    <Compile Include="Commands\FuncCommandBaseOfT.cs" />
+    <Compile Include="Commands\IFuncCommandOfT.cs" />
     <Compile Include="Executor.cs" />
     <Compile Include="ICommandLibrary.cs" />
+    <Compile Include="IExecutor.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="Parsing\Interpreter.cs" />
     <Compile Include="CommandScheduleSettings.cs" />
@@ -70,7 +73,6 @@
     <Compile Include="Attributes\ResultAttribute.cs" />
     <Compile Include="ReflectionTools.cs" />
     <Compile Include="Scheduler.cs" />
-    <Compile Include="TaskPlan.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="TypeScanner.cs" />
     <Compile Include="Exceptions\UnknownArgumentsException.cs" />

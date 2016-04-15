@@ -22,7 +22,7 @@ namespace TheGin
         }
         public static void RunInputLoop(this Gin gin)
         {
-            while (!gin.ExitFlag) {
+            while (!gin.NeedToExit) {
                 Console.Write("\r\n> ");
                 var command = Console.ReadLine();
                 if(!string.IsNullOrWhiteSpace(command))

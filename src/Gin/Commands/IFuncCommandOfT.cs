@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class Instruction
+    public interface IFuncCommand<TResult> : IFuncCommand, ICommand
     {
-        public CommandLocator Locator { get; set; }
-        public CommandScheduleSettings ScheduleSettings { get; set; }
+        TResult TypedResult { get; }
     }
 }

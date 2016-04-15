@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TheGin
 {
     [Command("Close current application")]
-    public class ExitCommand : CommandBase
+    public class ExitCommand : CommandBase, ICommand
     {
         private readonly Gin interpreter;
 
@@ -18,7 +18,7 @@ namespace TheGin
 
         public override void Run()
         {
-            this.interpreter.ExitFlag = true;
+            this.interpreter.NeedToExit = true;
         }
     }
 

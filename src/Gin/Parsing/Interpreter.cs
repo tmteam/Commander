@@ -32,7 +32,7 @@ namespace TheGin
                 throw new UnknownArgumentsException(args.ToArray());
 
             return new Instruction {
-                Factory  = new CommandFactory(description.GetRawInstance, commandConfiguration),
+                Locator  = new CommandLocator(description.GetRawInstance, commandConfiguration),
                 ScheduleSettings = intervalSettings,
             };
         }

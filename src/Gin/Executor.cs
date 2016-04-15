@@ -6,24 +6,27 @@ using System.Threading.Tasks;
 
 namespace TheGin
 {
-    public class Executor
+    public class Executor : IExecutor
     {
-        readonly ILog log;
-        public Executor(ILog log)
-        {
-            this.log = log;
+        public Executor() {
+            this.Log = new ConsoleLog();
+        }
+        public Executor(ILog log) {
+            this.Log = log ?? new ConsoleLog();
         }
         public void Run(ICommand cmd){
-            log.AttachTo(cmd);
+            Log.AttachTo(cmd);
             try {
                 cmd.Run();
                 var func = cmd as IFuncCommand;
                 if (func != null)
                     Console.WriteLine("Result: " + ReflectionTools.Describe(func.UntypedResult, "\t"));
             } catch (Exception ex) {
-                log.WriteError("Exception: \r\n" + ex.ToString());
+                Log.WriteError("Exception: \r\n" + ex.ToString());
             }
         }
+
+        public ILog Log { get; set; }
     }
 
 }

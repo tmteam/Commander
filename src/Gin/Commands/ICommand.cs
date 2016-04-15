@@ -11,8 +11,5 @@ namespace TheGin
         void Run();
     }
 
-    public interface ICommand<TResult> : IFuncCommand, ICommand
-    {
-        TResult TypedResult { get; }
-    }
+    
 }
