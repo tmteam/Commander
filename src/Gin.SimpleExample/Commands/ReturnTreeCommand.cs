@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheGin.ComplexExample
+namespace TheGin.SimpleExample
 {
-    [Command("Generate tree")]
-    public class ReturnTreeCommand: CommandBase<Node>
+    [Command("Generates tree")]
+    public class ReturnTreeCommand: FuncCommandBase<Node>
     {
         protected override Node RunAndReturn()
         {

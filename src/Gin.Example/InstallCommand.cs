@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheGin.Example
+namespace TheGin.ComplexExample
 {
     [Command("Registrate the commander as a service")]
     public class InstallCommand: CommandBase

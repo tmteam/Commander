@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7646A731-3FE9-4EC0-9406-B7F21D282710}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{C571FF92-79FF-4CAB-88B3-3E4667F25643}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TheGin</RootNamespace>
-    <AssemblyName>TheGin</AssemblyName>
+    <RootNamespace>TheGin.SimpleExample</RootNamespace>
+    <AssemblyName>TheGin.SimpleExample</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -39,45 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArgumentDescription.cs" />
-    <Compile Include="Attributes\SettingAttribute.cs" />
-    <Compile Include="Attributes\CommandAttribute.cs" />
-    <Compile Include="CommandLocator.cs" />
-    <Compile Include="Commands\CommandBase.cs" />
-    <Compile Include="CommandSketch.cs" />
-    <Compile Include="Commands\FuncCommandBaseOfT.cs" />
-    <Compile Include="Commands\IFuncCommandOfT.cs" />
-    <Compile Include="Executor.cs" />
-    <Compile Include="ICommandLibrary.cs" />
-    <Compile Include="IExecutor.cs" />
-    <Compile Include="Instruction.cs" />
-    <Compile Include="Parsing\Interpreter.cs" />
-    <Compile Include="CommandScheduleSettings.cs" />
-    <Compile Include="Commands\RunInCycleWrapper.cs" />
-    <Compile Include="Parsing\DateTimeValue.cs" />
-    <Compile Include="Exceptions\InvalidArgumentException.cs" />
-    <Compile Include="Log\ConsoleLog.cs" />
-    <Compile Include="Log\DecoratorLog.cs" />
-    <Compile Include="Commands\ExitCommand.cs" />
-    <Compile Include="Log\FakeLog.cs" />
-    <Compile Include="Log\FileLog.cs" />
-    <Compile Include="Commands\HelpCommand.cs" />
-    <Compile Include="Commands\ICommand.cs" />
-    <Compile Include="Commands\IFuncCommand.cs" />
-    <Compile Include="Log\ILog.cs" />
-    <Compile Include="Log\ILoggable.cs" />
-    <Compile Include="Gin.cs" />
-    <Compile Include="Exceptions\MissedArgumentsException.cs" />
-    <Compile Include="Parsing\ParseTools.cs" />
+    <Compile Include="Commands\DivideCommand.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Attributes\ResultAttribute.cs" />
-    <Compile Include="ReflectionTools.cs" />
-    <Compile Include="Scheduler.cs" />
-    <Compile Include="SearchCommandBehaviour.cs" />
-    <Compile Include="Tools.cs" />
-    <Compile Include="TypeScanner.cs" />
-    <Compile Include="Exceptions\UnknownArgumentsException.cs" />
-    <Compile Include="Exceptions\UnknownCommandNameException.cs" />
+    <Compile Include="Commands\RaiseAnException.cs" />
+    <Compile Include="Commands\ReturnTreeCommand.cs" />
+    <Compile Include="Commands\WriteHelloCommand.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gin\Gin.csproj">
+      <Project>{7646a731-3fe9-4ec0-9406-b7f21d282710}</Project>
+      <Name>Gin</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

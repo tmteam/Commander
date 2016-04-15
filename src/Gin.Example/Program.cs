@@ -6,29 +6,32 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheGin.Example
+namespace TheGin.ComplexExample
 {
-
-
-
     class Program
     {
         static void Main(string[] args) {
 
             var scanner = new TypeScanner();
+            //scan only executing assembly:
             scanner.ScanAssembly(Assembly.GetEntryAssembly());
+            //scan or append command manualy here...
+            //scanner.Registrate<myCommandType>();
+
             var gin = new Gin(
-                        library: scanner, 
-                        log:     new DecoratorLog( 
+                        library:  scanner,               //Specify your own command library
+                        executor: new Executor(),        //(optional) specify your own command executor (do not forget to catch exceptions and attach the log to commands in it)
+                        log:      new DecoratorLog(      //(optional) combine different logs
                                     new ConsoleLog(), 
-                                    new FileLog(10000, "TheLog.txt")));
-
-            gin.AddHelp();
-            gin.AddExit();
-
-            gin.Log.WriteMessage("Gin lauched");
-
-            if (!Environment.UserInteractive)
+                                    new FileLog(maxLogLength: 10000, 
+                                                relativeFileName: "TheLog.txt",
+                                                writeFilter: FileLogFilter.All)));
+           
+            gin.Log.WriteMessage("Gin lauched at "+ DateTime.Now);
+            
+            //to switch log at runtime:
+            //gin.Log = new ConsoleLog();
+            if (!Environment.UserInteractive) //if we are launched as a service
             {
                 gin.Log.WriteMessage("Executed as a service");
                 //Do whatever you want here as a service...
@@ -45,19 +48,15 @@ namespace TheGin.Example
                 gin.WaitForFinsh();
             } else if (args.Length > 0) { // when it's executed with parameters:
                 gin.Execute(args);
-                
-                gin.Log.WriteMessage("Goodbye. Press any key to continue...");
-                Console.ReadLine();
+                //close the application after operation will be done
             } else { // when it's executed as a console application:
+                gin.AddHelp();// add \"help\" command
+                gin.AddExit();// add \"exit\" command
 
-                //interpreter.AddExitCommand();
-                //interpreter.AddHelpCommand();
-                gin.Execute("help");
-                
                 gin.RunInputLoop();
                 
                 gin.Log.WriteMessage("Goodbye. Press any key to continue...");
-                Console.ReadLine();
+                Console.ReadKey();
             }
         }
     }

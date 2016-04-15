@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheGin.Example
+namespace TheGin.ComplexExample
 {
     [Command("Deregistrate the commander as a service (administrator only)")]
     public class UnistallCommand: CommandBase

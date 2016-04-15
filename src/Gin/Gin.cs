@@ -16,22 +16,49 @@ namespace TheGin
         readonly IExecutor _executor;
         public readonly Interpreter Interpreter;
         public readonly Scheduler Scheduler;
-        /*
-        public Gin(bool useHelpCommand= true,
-                   bool useExitCommand = true,
-                   ScanBehaviour scanBehaviour = ScanBehaviour.ScanAllSolutionAssembly)
+        
+        public Gin(bool addHelpCommand= true,
+                   bool addExitCommand = true,
+                   SearchCommandBehaviour searchBehaviour = SearchCommandBehaviour.ScanAllSolutionAssemblies, 
+                   string logFileName = null)
         {
-            throw new NotImplementedException();
-        }*/
+            this._localTaskIsDone = new ManualResetEvent(true);
+            this.Library = new TypeScanner();
+            this._log = string.IsNullOrWhiteSpace(logFileName)
+                ? (ILog) new ConsoleLog()
+                : (ILog) new DecoratorLog(
+                     new ConsoleLog(),
+                     new FileLog(int.MaxValue, logFileName, FileLogFilter.All));
+
+            this._executor = new Executor(this.Log);
+            this.Scheduler = new Scheduler(this._executor, this.Log);
+            this.Interpreter = new Interpreter(this.Library);
+            
+            if( searchBehaviour== SearchCommandBehaviour.ScanAllSolutionAssemblies) {
+                foreach(var asm in ReflectionTools.GetAllRefferencedAssemblies()) {
+                    (this.Library as TypeScanner).ScanAssembly(asm);
+                }
+            }
+            else if( searchBehaviour== SearchCommandBehaviour.ScanExecutingAssembly) {
+                (this.Library as TypeScanner).ScanAssembly(Assembly.GetEntryAssembly());
+            }
+            if (addHelpCommand) {
+                this.AddHelp();
+            }
+            if (addExitCommand) {
+                this.AddExit();
+            }
+        }
 
         public Gin(ICommandLibrary library, ILog log = null, IExecutor executor = null) {
             this._localTaskIsDone =  new ManualResetEvent(true);
             this.Library   = library;
-            this.Log       = log?? new ConsoleLog();
-            this._executor     = executor?? new Executor(this.Log);
-            this._executor.Log = this.Log;
-            this.Scheduler     = new Scheduler(this._executor, this.Log);
+            this.Scheduler     = new Scheduler(this._executor, this._log);
             this.Interpreter   = new Interpreter(library);
+            this._log = log ?? new ConsoleLog();
+            this._executor = executor ?? new Executor(this.Log);
+            this._executor.Log = this.Log;
+            
         }
         
         public ILog Log {

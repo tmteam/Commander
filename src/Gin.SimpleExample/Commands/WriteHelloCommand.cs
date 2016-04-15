@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheGin.ComplexExample
+namespace TheGin.SimpleExample
 {
-    [Command("Write word hello and nothing more")]
+    [Command("Writes word \"hello\" and nothing more")]
     public class WriteHelloCommand: CommandBase
     {
         public override void Run() {

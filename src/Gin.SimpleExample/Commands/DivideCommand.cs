@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheGin.ComplexExample
+namespace TheGin.SimpleExample
 {
     [Command("a/b math operation")]
     public class DivideCommand: FuncCommandBase<double>, IFuncCommand<double>, IFuncCommand, ICommand, ILoggable
