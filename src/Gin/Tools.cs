@@ -18,6 +18,12 @@ namespace TheGin
                 loggable.Log = log;
             return loggable != null;
         }
+        public static ILog GetLogOrNull(this object obj)
+        {
+            if (obj is ILoggable)
+                return (obj as ILoggable).Log;
+            return null;
+        }
         /// <summary>
         /// Adds the help command to the Gin's library
         /// </summary>

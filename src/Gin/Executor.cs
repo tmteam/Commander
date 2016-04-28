@@ -19,13 +19,16 @@ namespace TheGin
         }
         public void Run(ICommand cmd){
             Log.TryAttachTo(cmd);
+            var cmdlog = cmd.GetLogOrNull()??Log;
+
             try {
                 cmd.Run();
                 var func = cmd as IFuncCommand;
-                if (func != null)
-                    Console.WriteLine("Result: " + ReflectionTools.Describe(func.UntypedResult, "\t"));
+                if (func != null) {
+                    cmdlog.WriteMessage("Result: " + ReflectionTools.Describe(func.UntypedResult, "\t"));
+                }
             } catch (Exception ex) {
-                Log.WriteError("Exception: \r\n" + ex.ToString());
+                cmdlog.WriteError("Exception: \r\n" + ex.ToString());
             }
         }
 

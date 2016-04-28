@@ -24,8 +24,7 @@ namespace TheGin.Tests
                  {"\"100",      typeof(TimeSpan)},
                  {"23:35.123",  typeof(TimeSpan)},
                  {"hurray!",    typeof(DateTime)},
-                 {"",    typeof(int)},
-
+                 {"",           typeof(int)},
             };
             foreach(var test in testCases){
                 try{
@@ -49,25 +48,27 @@ namespace TheGin.Tests
             {
                  {"some string", "some string"},
                  {"\"quote\"", "quote"},
-                 {"123",    123},
-                 {"100",    TimeSpan.FromMilliseconds(100)},
-                 {"23:35",  TimeSpan.FromMinutes(23*60 + 35)},
-                 {"23:40",  DateTime.Now.Date+ TimeSpan.FromMinutes(23*60+ 40)},
-                 {"No",        false},
-                 {"yes",       true},
-                 {"TRUE",      true},
-                 {"false",     false},
-                 {"\"1\"",     true},
-                 {"0",         false},
-                 {"101",       (double)101},
-                 {"\"103\"",   (float)103},
-                 {"123,7",     (double)123.7},
-                 {"123.5",     (double)123.5},
-                 {"123.555",   123.555M},
-                 {"124,555",   124.555M},
-                 {"\"124.5\"", (float)124.5},
-                 {"125,5",     (float)125.5},
-                 
+                 {"123",        123},
+                 {"100",        TimeSpan.FromMilliseconds(100)},
+                 {"23:35",      TimeSpan.FromMinutes(23*60 + 35)},
+                 {"23:40",      DateTime.Now.Date+ TimeSpan.FromMinutes(23*60+ 40)},
+                 {"No",         false},
+                 {"yes",        true},
+                 {"TRUE",       true},
+                 {"false",      false},
+                 {"\"1\"",      true},
+                 {"0",          false},
+                 {"101",        (double)101},
+                 {"\"103\"",    (float)103},
+                 {"123,7",      (double)123.7},
+                 {"123.5",      (double)123.5},
+                 {"123.555",    123.555M},
+                 {"124,555",    124.555M},
+                 {"\"124.5\"",  (float)124.5},
+                 {"125,5",      (float)125.5},
+                 {"1",          SomeEnum.nino },
+                 {"THREE",      SomeEnum.ThreE},
+                 {"MsK",        SomeEnum.Msk},
             };
             foreach(var test in testCases){
                 Assert.AreEqual(test.Value, ParseTools.Convert(test.Key, test.Value.GetType(),"arg"));
@@ -176,5 +177,11 @@ namespace TheGin.Tests
         public string CommandString;
         public string[] Args;
  
+    }
+    enum SomeEnum
+    {
+        Msk = 0,
+        nino =1,
+        ThreE = 2,
     }
 }

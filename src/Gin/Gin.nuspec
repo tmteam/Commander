@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>TheGin.dll</id>
+    <version>1.1.1</version>
+    <title>Gin</title>
+    <authors>tmteam</authors>
+    <owners>tmteam</owners>
+    <licenseUrl>https://github.com/tmteam/Gin/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/tmteam/Gin</projectUrl>
+    <iconUrl>http://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/8e/8e589d8d1fa1f713d168d0d564a2e77cc6532e27_medium.jpg</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Easy start for your console-menu apps and background workers. Prototype your own command-application with easy oop-style. See https://github.com/tmteam/Gin for easy start examples.</description>
+    <releaseNotes>nuget release issues were fixed</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>background worker console command commands toolkit execute cmd scheduler</tags>
+  </metadata>
+</package>

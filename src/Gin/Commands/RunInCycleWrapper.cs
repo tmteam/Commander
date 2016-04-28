@@ -29,5 +29,6 @@ namespace TheGin
             }
             Log.WriteMessage("Cycle finished");
         }
+        
     }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace TheGin
 {
     /// <summary>
-    /// Gin that can execute your command up to your wishes...
+    /// Gin that can execute your commands up to your wishes...
     /// </summary>
     public class Gin: ILoggable
     {

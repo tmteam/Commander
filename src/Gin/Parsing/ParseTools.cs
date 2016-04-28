@@ -33,6 +33,23 @@ namespace TheGin
                 if (falseStrings.Contains(value))
                     return false;
             }
+            else if (nonNullType.IsEnum) {
+                try
+                {
+                    var val = int.Parse(value);
+                    return System.Convert.ChangeType(val, nonNullType);
+                }
+                catch
+                {
+                    //don't worry - it's ok
+                }
+                try {
+                    //Give them another chance
+                    return Enum.Parse(nonNullType, value, true);
+                } catch {
+                    //Now let them fall down...
+                }
+            }
             else
             {
                 try
@@ -54,14 +71,16 @@ namespace TheGin
                         else
                             value = value.Replace('.', ',');
                     }
-                    return System.Convert.ChangeType(value, nonNullType);                    
+                    return System.Convert.ChangeType(value, nonNullType);
                 }
-                catch {
+                catch
+                {
                     //Just let them fall...
                 }
             }
             throw new InvalidArgumentException(nonNullType, value, alias);
         }
+        
         public static string GetCommandName(Type commandType)
         {
             var name = commandType.Name;
