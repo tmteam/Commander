@@ -71,12 +71,11 @@ namespace TheGin
         public Gin(ICommandLibrary library, ILog log = null, IExecutor executor = null) {
             this._localTaskIsDone =  new ManualResetEvent(true);
             this.Library   = library;
-            this.Scheduler     = new Scheduler(this._executor, this._log);
-            this.Interpreter   = new Interpreter(library);
             this._log = log ?? new ConsoleLog();
             this._executor = executor ?? new Executor(this.Log);
             this._executor.Log = this.Log;
-            
+            this.Scheduler = new Scheduler(this._executor, this._log);
+            this.Interpreter = new Interpreter(library);
         }
         
         /// <summary>

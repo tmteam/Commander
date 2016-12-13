@@ -21,6 +21,8 @@ namespace TheGin
         
         public Scheduler(IExecutor executor, ILog log = null,  int resolutionInMsec = 1000)
         {
+            if(executor==null)
+                throw  new ArgumentNullException("executor");
             this.IsKilled = false;
 
             this.Log = log ?? new ConsoleLog();
